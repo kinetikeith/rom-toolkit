@@ -11,6 +11,7 @@ import AppContext, { RomType, EditorMode } from "../AppData";
 import Navbar from "./Navbar";
 import RomOpener from "./RomOpener";
 import GbHeaderEditor from "./editor/GbHeaderEditor";
+import SnesHeaderEditor from "./editor/SnesHeaderEditor";
 import PatchEditor from "./editor/PatchEditor";
 
 class EditorRegistry {
@@ -35,6 +36,7 @@ class EditorRegistry {
 const reg = new EditorRegistry();
 // Register all the editors
 reg.register(GbHeaderEditor, RomType.Gb, EditorMode.Header);
+reg.register(SnesHeaderEditor, RomType.Snes, EditorMode.Header);
 reg.register(PatchEditor, RomType.Any, EditorMode.Patch);
 
 function ContentWrapper(props: { children: any }) {

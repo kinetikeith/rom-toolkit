@@ -1,5 +1,6 @@
 import { Buffer } from "buffer";
 
+import { trimNull, padNull, keysAsHex } from "./utils";
 import GbLogo from "./GbLogo";
 
 import licenseesOld from "./data/gbLicenseesOld.json";
@@ -14,16 +15,13 @@ interface MemoryInfo {
   size: number;
 }
 
-const licenseeMapOld = new Map<number, string>();
+const licenseeMapOld = keysAsHex(licenseesOld);
 const licenseeMapNew = new Map<string, string>();
 const romMap = new Map<number, MemoryInfo>();
 const ramMap = new Map<number, MemoryInfo>();
-const destinationMap = new Map<number, string>();
-const featureMap = new Map<number, Array<string>>();
+const destinationMap = keysAsHex(destinations);
+const featureMap = keysAsHex(features);
 
-for (const [key, value] of Object.entries(licenseesOld)) {
-  licenseeMapOld.set(Number.parseInt(key, 10), value);
-}
 for (const [key, value] of Object.entries(licenseesNew)) {
   licenseeMapNew.set(key, value);
 }
@@ -42,14 +40,6 @@ for (const [key, value] of Object.entries(ramBanks)) {
   });
 }
 
-for (const [key, value] of Object.entries(destinations)) {
-  destinationMap.set(Number.parseInt(key, 16), value);
-}
-
-for (const [key, value] of Object.entries(features)) {
-  featureMap.set(Number.parseInt(key, 16), value);
-}
-
 export {
   licenseeMapOld,
   licenseeMapNew,
@@ -58,17 +48,6 @@ export {
   destinationMap,
   featureMap,
 };
-
-function trimNull(value: string) {
-  const clipIndex = value.indexOf("\x00");
-  if (clipIndex >= 0) return value.substring(0, clipIndex);
-
-  return value;
-}
-
-function padNull(value: string, n: number) {
-  return value.padEnd(n, "\x00");
-}
 
 // https://stackoverflow.com/a/64808910
 function mod(n: number, m: number): number {
