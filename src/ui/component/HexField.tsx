@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { InputField, FieldProps } from "./Field";
+import { InputField, FieldProps } from "./field";
 import { asHexRaw } from "../format";
 
 interface HexFieldProps extends FieldProps<number> {

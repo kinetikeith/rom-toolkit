@@ -1,7 +1,5 @@
 import { useState, useContext } from "react";
 
-import Box from "@mui/material/Box";
-
 import SdCardIcon from "@mui/icons-material/SdCard";
 import MemoryIcon from "@mui/icons-material/Memory";
 import VibrationIcon from "@mui/icons-material/Vibration";
@@ -110,7 +108,7 @@ export default function GbHeaderEditor(props: {}) {
   const logoValidColor = isLogoValid ? "success.main" : "error.main";
 
   return (
-    <Box sx={{ p: 2 }}>
+    <>
       <HeaderDivider>General</HeaderDivider>
       <HeaderEntry label="Title" onEdit={() => setField(Field.Title)}>
         {header.title}
@@ -335,6 +333,6 @@ export default function GbHeaderEditor(props: {}) {
       <HeaderEntry label="Global Checksum">
         {asHex(header.globalChecksum, 4)}
       </HeaderEntry>
-    </Box>
+    </>
   );
 }

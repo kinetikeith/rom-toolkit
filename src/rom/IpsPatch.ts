@@ -64,16 +64,16 @@ export default class IpsPatch {
   applyTo(buffer: Buffer): Buffer {
     let resBuffer = buffer;
     const chunks = [...this.getChunks()];
-    chunks.sort(chunk => chunk.offset);
+    chunks.sort((chunk) => chunk.offset);
     const lastChunk = chunks[chunks.length - 1];
     const patchLength = lastChunk.offset + lastChunk.length;
 
-    if(patchLength > buffer.length) {
+    if (patchLength > buffer.length) {
       resBuffer = Buffer.alloc(patchLength);
       buffer.copy(resBuffer);
     }
 
-    for(const chunk of chunks) {
+    for (const chunk of chunks) {
       chunk.buffer().copy(resBuffer, chunk.offset);
     }
 

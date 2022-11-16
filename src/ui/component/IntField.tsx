@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { FieldProps, InputField } from "./Field";
+import { FieldProps, InputField } from "./field";
 
 interface IntFieldProps extends FieldProps<number> {}
 

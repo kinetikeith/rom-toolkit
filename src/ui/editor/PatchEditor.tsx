@@ -1,5 +1,4 @@
 import { useContext } from "react";
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { Buffer } from "buffer";
 
@@ -24,10 +23,8 @@ export default function PatchEditor(props: {}) {
   );
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Button variant="contained" color="secondary" onClick={triggerUpload}>
-        Open Patch
-      </Button>
-    </Box>
+    <Button variant="contained" color="secondary" onClick={triggerUpload}>
+      Open Patch
+    </Button>
   );
 }

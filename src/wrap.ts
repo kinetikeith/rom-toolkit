@@ -8,7 +8,7 @@ function wrap<Type>(obj: Type): Wrapper<Type> {
   return { value: obj };
 }
 
-type UpdateFunc<Type> = (oldObj: Type) => (Type | void);
+type UpdateFunc<Type> = (oldObj: Type) => Type | void;
 export type UpdateArg<Type> = UpdateFunc<Type> | Type;
 
 type UseWrapFunc<Type> = (value?: UpdateArg<Type>) => void;

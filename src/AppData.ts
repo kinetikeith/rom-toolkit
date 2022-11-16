@@ -3,13 +3,6 @@ import { Buffer } from "buffer";
 
 import { UpdateArg } from "./wrap";
 
-export enum EditorMode {
-  Open,
-  Header,
-  Patch,
-  Info,
-}
-
 export enum RomType {
   None,
   Generic,
@@ -19,10 +12,14 @@ export enum RomType {
   Snes,
 }
 
+export enum FileState {
+  Missing,
+  Opened,
+  Modified,
+}
+
 interface AppContextType {
   romType: RomType;
-  editorMode: EditorMode;
-  setEditorMode: (mode: EditorMode) => void;
   setFile: (file: File) => Promise<void>;
 
   buffer: Buffer;
@@ -31,8 +28,6 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType>({
   romType: RomType.None,
-  editorMode: EditorMode.Open,
-  setEditorMode: () => {},
   setFile: async () => {},
 
   buffer: Buffer.alloc(0),

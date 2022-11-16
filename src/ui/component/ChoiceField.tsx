@@ -1,7 +1,7 @@
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 
-import { FieldProps } from "./Field";
+import { FieldProps } from "./field";
 
 interface ChoiceFieldProps<T> extends FieldProps<T> {
   optionMap: Map<T, string>;

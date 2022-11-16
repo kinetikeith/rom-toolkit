@@ -5,11 +5,11 @@ import { ThemeProvider } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
 
 import { useWrap, UpdateArg } from "./wrap";
-import AppContext, { RomType, EditorMode } from "./AppData";
+import AppContext, { RomType, FileState } from "./AppData";
 import { detectRomType } from "./rom/utils";
 
 import PageHeader from "./ui/PageHeader";
-import Content from "./ui/Content";
+import PageContent from "./ui/PageContent";
 import PageFooter from "./ui/PageFooter";
 import {
   defaultTheme,
@@ -38,12 +38,11 @@ export default function App(props: {}) {
     romType: RomType.None,
     arrayBuffer: new ArrayBuffer(0),
   });
-  const [editorMode, setEditorMode] = useState<EditorMode>(EditorMode.Open);
-  const [isModified, setIsModified] = useState<boolean>(false);
+  const [fileState, setFileState] = useState<FileState>(FileState.Missing);
   const [buffer, setBuffer] = useWrap<Buffer>(Buffer.alloc(0));
 
   const updateBuffer = (value: UpdateArg<Buffer>) => {
-    setIsModified(true);
+    setFileState(FileState.Modified);
     setBuffer(value);
   };
 
@@ -62,8 +61,7 @@ export default function App(props: {}) {
       arrayBuffer: arrayBuffer,
     });
     setBuffer(newBuffer);
-    setEditorMode(EditorMode.Header);
-    setIsModified(false);
+    setFileState(FileState.Opened);
   };
 
   const theme = themeMap.get(fileInfo.romType) || defaultTheme;
@@ -74,8 +72,6 @@ export default function App(props: {}) {
         <AppContext.Provider
           value={{
             romType: fileInfo.romType,
-            editorMode: editorMode,
-            setEditorMode: setEditorMode,
             setFile: setFile,
             buffer: buffer,
             updateBuffer: updateBuffer,
@@ -83,8 +79,8 @@ export default function App(props: {}) {
         >
           <Stack direction="column" alignItems="center" sx={{ height: "100%" }}>
             <PageHeader />
-            <Content
-              isModified={isModified}
+            <PageContent
+              fileState={fileState}
               resetBuffer={resetBuffer}
               fileName={fileInfo.name}
             />
