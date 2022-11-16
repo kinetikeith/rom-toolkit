@@ -29,7 +29,7 @@ class EditorRegistry {
   getEditor(romType: RomType, editorMode: EditorMode) {
     const romSpecificEditor = this.editors.get(romType)?.get(editorMode);
     if (romSpecificEditor !== undefined) return romSpecificEditor;
-    else return this.editors.get(RomType.Any)?.get(editorMode);
+    else return this.editors.get(RomType.Generic)?.get(editorMode);
   }
 }
 
@@ -37,7 +37,7 @@ const reg = new EditorRegistry();
 // Register all the editors
 reg.register(GbHeaderEditor, RomType.Gb, EditorMode.Header);
 reg.register(SnesHeaderEditor, RomType.Snes, EditorMode.Header);
-reg.register(PatchEditor, RomType.Any, EditorMode.Patch);
+reg.register(PatchEditor, RomType.Generic, EditorMode.Patch);
 
 function ContentWrapper(props: { children: any }) {
   const theme = useTheme();

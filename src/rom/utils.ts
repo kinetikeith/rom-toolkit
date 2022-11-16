@@ -32,7 +32,7 @@ export function padNull(value: string, n: number) {
   return value.padEnd(n, "\x00");
 }
 
-export function keysAsHex<T>(obj: {[key: string]: T}) {
+export function keysAsHex<T>(obj: { [key: string]: T }) {
   const map = new Map<number, T>();
   for (const [key, value] of Object.entries(obj)) {
     map.set(Number.parseInt(key, 16), value);

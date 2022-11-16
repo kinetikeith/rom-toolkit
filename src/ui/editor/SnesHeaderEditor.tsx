@@ -15,13 +15,15 @@ export default function SnesHeaderEditor(props: {}) {
   return (
     <Box sx={{ p: 2 }}>
       <HeaderDivider>General</HeaderDivider>
-      <HeaderEntry label="Title">{ header.title }</HeaderEntry>
-      <HeaderEntry label="Maker Code">{ header.makerCode }</HeaderEntry>
-      <HeaderEntry label="Game Code">{ header.gameCode }</HeaderEntry>
-      <HeaderEntry label="Destination">{ header.destination || "Unknown" }</HeaderEntry>
+      <HeaderEntry label="Title">{header.title}</HeaderEntry>
+      <HeaderEntry label="Maker Code">{header.makerCode}</HeaderEntry>
+      <HeaderEntry label="Game Code">{header.gameCode}</HeaderEntry>
+      <HeaderEntry label="Destination">
+        {header.destination || "Unknown"}
+      </HeaderEntry>
       <HeaderDivider>Hardware</HeaderDivider>
-      <HeaderEntry label="ROM Size">{ asBytes(header.romSize) }</HeaderEntry>
-      <HeaderEntry label="RAM Size">{ asBytes(header.ramSize) }</HeaderEntry>
+      <HeaderEntry label="ROM Size">{asBytes(header.romSize)}</HeaderEntry>
+      <HeaderEntry label="RAM Size">{asBytes(header.ramSize)}</HeaderEntry>
     </Box>
   );
 }

@@ -1,6 +1,8 @@
 import { createContext } from "react";
 import { Buffer } from "buffer";
 
+import { UpdateArg } from "./wrap";
+
 export enum EditorMode {
   Open,
   Header,
@@ -10,7 +12,7 @@ export enum EditorMode {
 
 export enum RomType {
   None,
-  Any,
+  Generic,
   Gb,
   Gba,
   Nes,
@@ -24,7 +26,7 @@ interface AppContextType {
   setFile: (file: File) => Promise<void>;
 
   buffer: Buffer;
-  updateBuffer: (func: (buffer: Buffer) => any) => void;
+  updateBuffer: (arg: UpdateArg<Buffer>) => void;
 }
 
 const AppContext = createContext<AppContextType>({

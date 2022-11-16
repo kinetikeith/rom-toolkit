@@ -4,7 +4,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
 
-import { useWrap } from "./wrap";
+import { useWrap, UpdateArg } from "./wrap";
 import AppContext, { RomType, EditorMode } from "./AppData";
 import { detectRomType } from "./rom/utils";
 
@@ -42,7 +42,7 @@ export default function App(props: {}) {
   const [isModified, setIsModified] = useState<boolean>(false);
   const [buffer, setBuffer] = useWrap<Buffer>(Buffer.alloc(0));
 
-  const updateBuffer = (value: (oldObj: Buffer) => undefined) => {
+  const updateBuffer = (value: UpdateArg<Buffer>) => {
     setIsModified(true);
     setBuffer(value);
   };
