@@ -56,6 +56,25 @@ export default class SnesHeader {
     this._buffer.write(padNull(value, 4), 0xb2, 4, "ascii");
   }
 
+  get expansionRamCode(): number {
+    return this._buffer.readUInt16BE(0xbd);
+  }
+  set expansionRamCode(value: number) {
+    this._buffer.writeUInt16BE(value, 0xbd);
+  }
+  get expansionRamSize(): number {
+    const expansionRamCode = this.expansionRamCode;
+    if (expansionRamCode === 0x00) return 0;
+    return 1024 << expansionRamCode;
+  }
+
+  get version(): number {
+    return this._buffer.readUInt8(0xbe);
+  }
+  set version(value: number) {
+    this._buffer.writeUInt8(value, 0xbe);
+  }
+
   get title(): string {
     return this._buffer.toString("utf8", 0xc0, 0xd5).trimEnd();
   }
@@ -66,12 +85,18 @@ export default class SnesHeader {
   get romCode(): number {
     return this._buffer.readUInt8(0xd7);
   }
+  set romCode(value: number) {
+    this._buffer.writeUInt8(value, 0xd7);
+  }
   get romSize(): number {
     return 1024 << this.romCode;
   }
 
   get ramCode(): number {
     return this._buffer.readUInt8(0xd8);
+  }
+  set ramCode(value: number) {
+    this._buffer.writeUInt8(value, 0xd8);
   }
   get ramSize(): number {
     const ramCode = this.ramCode;
@@ -81,6 +106,9 @@ export default class SnesHeader {
 
   get destinationCode(): number {
     return this._buffer.readUInt8(0xd9);
+  }
+  set destinationCode(value: number) {
+    this._buffer.writeUInt8(value, 0xd9);
   }
   get destination(): string | undefined {
     return destinationMap.get(this.destinationCode);
