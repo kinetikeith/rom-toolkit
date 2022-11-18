@@ -5,7 +5,7 @@ import SnesHeader from "../../rom/SnesHeader";
 import StringDialog from "../dialog/StringDialog";
 import IntDialog from "../dialog/IntDialog";
 import { HeaderEntry, HeaderDivider } from "./HeaderEditor";
-import { asBytes } from "../format";
+import { asBytes, asHex } from "../format";
 
 enum Field {
   None,
@@ -74,7 +74,14 @@ export default function SnesHeaderEditor(props: {}) {
       <HeaderEntry label="ROM Size">{asBytes(header.romSize)}</HeaderEntry>
       <HeaderEntry label="RAM Size">{asBytes(header.ramSize)}</HeaderEntry>
       <HeaderEntry label="Expansion RAM Size">
-        {asBytes(header.expansionRamSize)}
+        {asBytes(header.ramExpansionSize)}
+      </HeaderEntry>
+      <HeaderDivider>Checksums</HeaderDivider>
+      <HeaderEntry label="Global Checksum">
+        {asHex(header.globalChecksum, 4)}
+      </HeaderEntry>
+      <HeaderEntry label="Global Complement">
+        {asHex(header.globalComplement, 4)}
       </HeaderEntry>
     </>
   );

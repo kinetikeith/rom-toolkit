@@ -24,7 +24,7 @@ export default class SnesHeader {
     scoreObjs.sort((scoreObj) => scoreObj.score);
     const bestScoreObj = scoreObjs[scoreObjs.length - 1];
     const bestOffset = bestScoreObj.offset;
-    const headerBuffer = buffer.subarray(bestOffset, bestOffset + 0xde);
+    const headerBuffer = buffer.subarray(bestOffset, bestOffset + 0xe0);
 
     return [headerBuffer, bestScoreObj.score];
   }
@@ -56,23 +56,23 @@ export default class SnesHeader {
     this._buffer.write(padNull(value, 4), 0xb2, 4, "ascii");
   }
 
-  get expansionRamCode(): number {
-    return this._buffer.readUInt16BE(0xbd);
+  get ramExpansionCode(): number {
+    return this._buffer.readUInt16LE(0xbd);
   }
-  set expansionRamCode(value: number) {
-    this._buffer.writeUInt16BE(value, 0xbd);
+  set ramExpansionCode(value: number) {
+    this._buffer.writeUInt16LE(value, 0xbd);
   }
-  get expansionRamSize(): number {
-    const expansionRamCode = this.expansionRamCode;
-    if (expansionRamCode === 0x00) return 0;
-    return 1024 << expansionRamCode;
+  get ramExpansionSize(): number {
+    const ramExpansionCode = this.ramExpansionCode;
+    return (ramExpansionCode === 0x00) ? 0 : 1024 << ramExpansionCode;
   }
 
-  get version(): number {
+  get versionSpecial(): number {
     return this._buffer.readUInt8(0xbe);
   }
-  set version(value: number) {
-    this._buffer.writeUInt8(value, 0xbe);
+
+  get cartridgeSubCode(): number {
+    return this._buffer.readUInt8(0xbf);
   }
 
   get title(): string {
@@ -80,6 +80,14 @@ export default class SnesHeader {
   }
   set title(value: string) {
     this._buffer.write(value.padEnd(21, " "), 0xc0, 21, "utf8");
+  }
+
+  get mapperCode(): number {
+    return this._buffer.readUInt8(0xd5);
+  }
+
+  get cartridgeCode(): number {
+    return this._buffer.readUInt8(0xd6);
   }
 
   get romCode(): number {
@@ -112,5 +120,19 @@ export default class SnesHeader {
   }
   get destination(): string | undefined {
     return destinationMap.get(this.destinationCode);
+  }
+
+  get version(): number {
+    return this._buffer.readUInt8(0xdb);
+  }
+  set version(value: number) {
+    this._buffer.writeUInt8(value, 0xdb);
+  }
+
+  get globalChecksum(): number {
+    return this._buffer.readUInt16LE(0xdc);
+  }
+  get globalComplement(): number {
+    return this._buffer.readUInt16LE(0xde);
   }
 }
