@@ -6,7 +6,7 @@ import destinations from "./data/snesDestinations.json";
 
 const destinationMap: Map<number, string> = keysAsHex(destinations);
 
-export {destinationMap};
+export { destinationMap };
 
 export default class SnesHeader {
   _buffer: Buffer;

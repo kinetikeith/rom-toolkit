@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 
 import AppContext from "../../AppData";
-import SnesHeader, {destinationMap} from "../../rom/SnesHeader";
+import SnesHeader, { destinationMap } from "../../rom/SnesHeader";
 import StringDialog from "../dialog/StringDialog";
 import IntDialog from "../dialog/IntDialog";
 import ChoiceDialog from "../dialog/ChoiceDialog";
@@ -25,9 +25,7 @@ export default function SnesHeaderEditor(props: {}) {
 
   const header = new SnesHeader(context.buffer);
 
-  const setFieldTo = (value: Field) => (
-    () => setField(value)
-  );
+  const setFieldTo = (value: Field) => () => setField(value);
   const closeField = () => setField(Field.None);
 
   return (
