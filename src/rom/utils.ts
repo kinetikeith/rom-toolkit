@@ -5,11 +5,11 @@ import SnesHeader from "./SnesHeader";
 import { RomType } from "../AppData";
 
 export function detectRomType(buffer: Buffer): RomType {
-  const gbHeader = new GbHeader(buffer);
+  const gbHeader = GbHeader.fromRom(buffer);
   if (gbHeader.logo.isValid) return RomType.Gb;
 
-  const snesHeader = new SnesHeader(buffer);
-  if (snesHeader.validityScore > 0) return RomType.Snes;
+  const snesHeader = SnesHeader.fromRom(buffer);
+  if (snesHeader.validity > 0) return RomType.Snes;
 
   return RomType.None;
 }

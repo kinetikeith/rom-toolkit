@@ -95,8 +95,9 @@ export default function GbHeaderEditor(props: {}) {
   const [field, setField] = useState<Field>(Field.None);
   const context = useContext(AppContext);
 
-  const header = new GbHeader(context.buffer);
+  const header = GbHeader.fromRom(context.buffer);
 
+  const setFieldTo = (value: Field) => () => setField(value);
   const closeField = () => setField(Field.None);
 
   const headerChecksum = header.headerChecksum;
@@ -120,14 +121,13 @@ export default function GbHeaderEditor(props: {}) {
         maxLength={11}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new GbHeader(buffer);
-            newHeader.titleMin = value;
-          });
+          header.titleMin = value;
+
+          context.updateBuffer();
           closeField();
         }}
       />
-      <HeaderEntry label="Version" onEdit={() => setField(Field.Version)}>
+      <HeaderEntry label="Version" onEdit={setFieldTo(Field.Version)}>
         {header.version}
       </HeaderEntry>
       <IntDialog
@@ -138,16 +138,15 @@ export default function GbHeaderEditor(props: {}) {
         max={255}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new GbHeader(buffer);
-            newHeader.version = value;
-          });
+          header.version = value;
+
+          context.updateBuffer();
           closeField();
         }}
       />
 
       <HeaderDivider>Licensing</HeaderDivider>
-      <HeaderEntry label="Licensee" onEdit={() => setField(Field.Licensee)}>
+      <HeaderEntry label="Licensee" onEdit={setFieldTo(Field.Licensee)}>
         {header.licensee || "Unknown"}
       </HeaderEntry>
       <GbLicenseeDialog
@@ -159,18 +158,16 @@ export default function GbHeaderEditor(props: {}) {
         open={field === Field.Licensee}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new GbHeader(buffer);
-            newHeader.licenseeCodeOld = value.codeOld;
-            newHeader.licenseeCodeNew = value.codeNew;
-          });
+          header.licenseeCodeOld = value.codeOld;
+          header.licenseeCodeNew = value.codeNew;
+          context.updateBuffer();
           closeField();
         }}
       />
       <HeaderEntry
         label="Logo"
         color={logoValidColor}
-        onEdit={() => setField(Field.Logo)}
+        onEdit={setFieldTo(Field.Logo)}
       >
         {isLogoValid ? "Valid" : "Invalid"}
       </HeaderEntry>
@@ -180,16 +177,14 @@ export default function GbHeaderEditor(props: {}) {
         value={logo}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new GbHeader(buffer);
-            newHeader.logo = value;
-          });
+          header.logo = value;
+          context.updateBuffer();
           closeField();
         }}
       />
       <HeaderEntry
         label="Manufacturer Code"
-        onEdit={() => setField(Field.Manufacturer)}
+        onEdit={setFieldTo(Field.Manufacturer)}
       >
         {header.manufacturerCode}
       </HeaderEntry>
@@ -200,17 +195,13 @@ export default function GbHeaderEditor(props: {}) {
         maxLength={4}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new GbHeader(buffer);
-            newHeader.manufacturerCode = value;
-          });
+          header.manufacturerCode = value;
+
+          context.updateBuffer();
           closeField();
         }}
       />
-      <HeaderEntry
-        label="Destination"
-        onEdit={() => setField(Field.Destination)}
-      >
+      <HeaderEntry label="Destination" onEdit={setFieldTo(Field.Destination)}>
         {header.destination || "Unknown"}
       </HeaderEntry>
       <ChoiceDialog
@@ -220,15 +211,13 @@ export default function GbHeaderEditor(props: {}) {
         optionMap={destinationMap}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new GbHeader(buffer);
-            newHeader.destinationCode = value;
-          });
+          header.destinationCode = value;
+          context.updateBuffer();
           closeField();
         }}
       />
       <HeaderDivider>System</HeaderDivider>
-      <HeaderEntry label="CGB Flag" onEdit={() => setField(Field.CgbFlag)}>
+      <HeaderEntry label="CGB Flag" onEdit={setFieldTo(Field.CgbFlag)}>
         {asHex(header.cgbFlag)}
       </HeaderEntry>
       <HexDialog
@@ -238,14 +227,13 @@ export default function GbHeaderEditor(props: {}) {
         nChars={2}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new GbHeader(buffer);
-            newHeader.cgbFlag = value;
-          });
+          header.cgbFlag = value;
+
+          context.updateBuffer();
           closeField();
         }}
       />
-      <HeaderEntry label="SGB Flag" onEdit={() => setField(Field.SgbFlag)}>
+      <HeaderEntry label="SGB Flag" onEdit={() => setFieldTo(Field.SgbFlag)}>
         {asHex(header.sgbFlag)}
       </HeaderEntry>
       <HexDialog
@@ -255,15 +243,13 @@ export default function GbHeaderEditor(props: {}) {
         nChars={2}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new GbHeader(buffer);
-            newHeader.sgbFlag = value;
-          });
+          header.sgbFlag = value;
+          context.updateBuffer();
           closeField();
         }}
       />
       <HeaderDivider>Hardware</HeaderDivider>
-      <HeaderEntry label="ROM Size" onEdit={() => setField(Field.RomSize)}>
+      <HeaderEntry label="ROM Size" onEdit={() => setFieldTo(Field.RomSize)}>
         {asBytes(header.romSize)}
       </HeaderEntry>
       <ChoiceDialog
@@ -273,14 +259,12 @@ export default function GbHeaderEditor(props: {}) {
         optionMap={romCodeLabelMap}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new GbHeader(buffer);
-            newHeader.romCode = value;
-          });
+          header.romCode = value;
+          context.updateBuffer();
           closeField();
         }}
       />
-      <HeaderEntry label="RAM Size" onEdit={() => setField(Field.RamSize)}>
+      <HeaderEntry label="RAM Size" onEdit={() => setFieldTo(Field.RamSize)}>
         {asBytes(header.ramSize)}
       </HeaderEntry>
       <ChoiceDialog
@@ -290,16 +274,14 @@ export default function GbHeaderEditor(props: {}) {
         optionMap={ramCodeLabelMap}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new GbHeader(buffer);
-            newHeader.ramCode = value;
-          });
+          header.ramCode = value;
+          context.updateBuffer();
           closeField();
         }}
       />
       <HeaderEntry
         label="Cartridge Features"
-        onEdit={() => setField(Field.Features)}
+        onEdit={() => setFieldTo(Field.Features)}
       >
         <CartridgeFeatures code={header.cartridgeCode} />
       </HeaderEntry>
@@ -310,10 +292,8 @@ export default function GbHeaderEditor(props: {}) {
         optionMap={featureCodeLabelMap}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new GbHeader(buffer);
-            newHeader.cartridgeCode = value;
-          });
+          header.cartridgeCode = value;
+          context.updateBuffer();
           closeField();
         }}
       />
@@ -322,10 +302,9 @@ export default function GbHeaderEditor(props: {}) {
         label="Header Checksum"
         color={headerChecksumColor}
         onUpdate={() => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new GbHeader(buffer);
-            newHeader.headerChecksum = newHeader.headerChecksumCalc;
-          });
+          header.headerChecksum = header.headerChecksumCalc;
+
+          context.updateBuffer();
         }}
       >
         {asHex(headerChecksum)}

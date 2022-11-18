@@ -8,40 +8,50 @@ const destinationMap: Map<number, string> = keysAsHex(destinations);
 
 export { destinationMap };
 
+function findHeader(buffer: Buffer): [Buffer, number] {
+  const offsets = [0xff00, 0x7f00, 0x40ff00];
+
+  const scoreObjs = offsets.map((offset) => ({
+    offset: offset,
+    score: calcHeaderOffsetScore(offset, buffer),
+  }));
+  scoreObjs.sort((scoreObj) => scoreObj.score);
+  const bestScoreObj = scoreObjs[scoreObjs.length - 1];
+  const bestOffset = bestScoreObj.offset;
+  const headerBuffer = buffer.subarray(bestOffset, bestOffset + 0xe0);
+
+  return [headerBuffer, bestScoreObj.score];
+}
+
+function calcHeaderOffsetScore(offset: number, buffer: Buffer): number {
+  let score = 0;
+  if (buffer.length < offset + 0xde) return -1;
+  const romCode = buffer.readUInt8(offset + 0xd7);
+  const ramCode = buffer.readUInt8(offset + 0xd8);
+
+  // TODO: Add more testing methods
+  if (romCode >= 0x05 && romCode <= 0x0f) score += 1;
+  if (ramCode <= 0x0a) score += 1;
+
+  return score;
+}
+
 export default class SnesHeader {
   _buffer: Buffer;
-  readonly validityScore: number;
+  readonly validity: number;
 
-  constructor(buffer: Buffer) {
-    [this._buffer, this.validityScore] = this._findHeader(buffer);
+  constructor(buffer: Buffer, validity: number = 0) {
+    this._buffer = buffer;
+    this.validity = validity;
   }
 
-  _findHeader(buffer: Buffer): [Buffer, number] {
-    const offsets = [0xff00, 0x7f00, 0x40ff00];
-
-    const scoreObjs = offsets.map((offset) => ({
-      offset: offset,
-      score: this._calcHeaderOffsetScore(offset, buffer),
-    }));
-    scoreObjs.sort((scoreObj) => scoreObj.score);
-    const bestScoreObj = scoreObjs[scoreObjs.length - 1];
-    const bestOffset = bestScoreObj.offset;
-    const headerBuffer = buffer.subarray(bestOffset, bestOffset + 0xe0);
-
-    return [headerBuffer, bestScoreObj.score];
+  static fromRom(buffer: Buffer): SnesHeader {
+    const [foundBuffer, validity] = findHeader(buffer);
+    return new SnesHeader(foundBuffer, validity);
   }
 
-  _calcHeaderOffsetScore(offset: number, buffer: Buffer): number {
-    let score = 0;
-    if (buffer.length < offset + 0xde) return -1;
-    const romCode = buffer.readUInt8(offset + 0xd7);
-    const ramCode = buffer.readUInt8(offset + 0xd8);
-
-    // TODO: Add more testing methods
-    if (romCode >= 0x05 && romCode <= 0x0f) score += 1;
-    if (ramCode <= 0x0a) score += 1;
-
-    return score;
+  copy(): SnesHeader {
+    return new SnesHeader(this._buffer, this.validity);
   }
 
   get makerCode(): string {

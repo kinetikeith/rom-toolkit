@@ -41,7 +41,7 @@ export default function App(props: {}) {
   const [fileState, setFileState] = useState<FileState>(FileState.Missing);
   const [buffer, setBuffer] = useWrap<Buffer>(Buffer.alloc(0));
 
-  const updateBuffer = (value: UpdateArg<Buffer>) => {
+  const updateBuffer = (value?: UpdateArg<Buffer>) => {
     setFileState(FileState.Modified);
     setBuffer(value);
   };

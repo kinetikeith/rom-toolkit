@@ -23,7 +23,7 @@ export default function SnesHeaderEditor(props: {}) {
   const [field, setField] = useState<Field>(Field.None);
   const context = useContext(AppContext);
 
-  const header = new SnesHeader(context.buffer);
+  const header = SnesHeader.fromRom(context.buffer);
 
   const setFieldTo = (value: Field) => () => setField(value);
   const closeField = () => setField(Field.None);
@@ -41,10 +41,9 @@ export default function SnesHeaderEditor(props: {}) {
         maxLength={21}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new SnesHeader(buffer);
-            newHeader.title = value;
-          });
+          header.title = value;
+
+          context.updateBuffer();
           closeField();
         }}
       />
@@ -59,10 +58,9 @@ export default function SnesHeaderEditor(props: {}) {
         max={255}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new SnesHeader(buffer);
-            newHeader.version = value;
-          });
+          header.version = value;
+
+          context.updateBuffer();
           closeField();
         }}
       />
@@ -77,10 +75,9 @@ export default function SnesHeaderEditor(props: {}) {
         maxLength={2}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new SnesHeader(buffer);
-            newHeader.makerCode = value;
-          });
+          header.makerCode = value;
+
+          context.updateBuffer();
           closeField();
         }}
       />
@@ -94,10 +91,9 @@ export default function SnesHeaderEditor(props: {}) {
         maxLength={4}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new SnesHeader(buffer);
-            newHeader.gameCode = value;
-          });
+          header.gameCode = value;
+
+          context.updateBuffer();
           closeField();
         }}
       />
@@ -111,10 +107,9 @@ export default function SnesHeaderEditor(props: {}) {
         optionMap={destinationMap}
         onCancel={closeField}
         onSubmit={(value) => {
-          context.updateBuffer((buffer) => {
-            const newHeader = new SnesHeader(buffer);
-            newHeader.destinationCode = value;
-          });
+          header.destinationCode = value;
+
+          context.updateBuffer();
           closeField();
         }}
       />

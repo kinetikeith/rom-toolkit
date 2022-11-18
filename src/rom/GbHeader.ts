@@ -54,14 +54,22 @@ function mod(n: number, m: number): number {
   return ((n % m) + m) % m;
 }
 
-export default class Header {
+export default class GbHeader {
   _buffer: Buffer;
   constructor(buffer: Buffer) {
     this._buffer = buffer;
   }
 
+  static fromRom(buffer: Buffer) {
+    return new GbHeader(buffer.subarray(0x0100, 0x0150));
+  }
+
+  copy(): GbHeader {
+    return new GbHeader(this._buffer);
+  }
+
   get _logoBuffer() {
-    return this._buffer.subarray(0x0104, 0x0134);
+    return this._buffer.subarray(0x04, 0x34);
   }
   get logo() {
     return new GbLogo(this._logoBuffer);
@@ -71,7 +79,7 @@ export default class Header {
   }
 
   get _titleMinBuffer() {
-    return this._buffer.subarray(0x0134, 0x013f);
+    return this._buffer.subarray(0x34, 0x3f);
   }
   get titleMin(): string {
     return trimNull(this._titleMinBuffer.toString("ascii"));
@@ -81,7 +89,7 @@ export default class Header {
   }
 
   get _titleBuffer() {
-    return this._buffer.subarray(0x0134, 0x0143);
+    return this._buffer.subarray(0x34, 0x43);
   }
   get title(): string {
     return trimNull(this._titleBuffer.toString("ascii"));
@@ -91,7 +99,7 @@ export default class Header {
   }
 
   get _titleMaxBuffer() {
-    return this._buffer.subarray(0x0134, 0x0144);
+    return this._buffer.subarray(0x34, 0x44);
   }
   get titleMax(): string {
     return trimNull(this._titleMaxBuffer.toString("ascii"));
@@ -101,38 +109,38 @@ export default class Header {
   }
 
   get version(): number {
-    return this._buffer.readUInt8(0x014c);
+    return this._buffer.readUInt8(0x4c);
   }
   set version(value: number) {
-    this._buffer.writeUInt8(value, 0x014c);
+    this._buffer.writeUInt8(value, 0x4c);
   }
 
   get cgbFlag(): number {
-    return this._buffer.readUInt8(0x0143);
+    return this._buffer.readUInt8(0x43);
   }
   set cgbFlag(value: number) {
-    this._buffer.writeUInt8(value, 0x0143);
+    this._buffer.writeUInt8(value, 0x43);
   }
 
   get sgbFlag(): number {
-    return this._buffer.readUInt8(0x0146);
+    return this._buffer.readUInt8(0x46);
   }
   set sgbFlag(value: number) {
-    this._buffer.writeUInt8(value, 0x0146);
+    this._buffer.writeUInt8(value, 0x46);
   }
 
   get cartridgeCode(): number {
-    return this._buffer.readUInt8(0x0147);
+    return this._buffer.readUInt8(0x47);
   }
   set cartridgeCode(value: number) {
-    this._buffer.writeUInt8(value, 0x0147);
+    this._buffer.writeUInt8(value, 0x47);
   }
 
   get romCode(): number {
-    return this._buffer.readUInt8(0x0148);
+    return this._buffer.readUInt8(0x48);
   }
   set romCode(value: number) {
-    this._buffer.writeUInt8(value, 0x0148);
+    this._buffer.writeUInt8(value, 0x48);
   }
   get romSize(): number | undefined {
     return 32 * 1024 * (1 << this.romCode);
@@ -142,10 +150,10 @@ export default class Header {
   }
 
   get ramCode(): number {
-    return this._buffer.readUInt8(0x0149);
+    return this._buffer.readUInt8(0x49);
   }
   set ramCode(value: number) {
-    this._buffer.writeUInt8(value, 0x0149);
+    this._buffer.writeUInt8(value, 0x49);
   }
   get ramSize(): number | undefined {
     return ramMap.get(this.ramCode)?.size;
@@ -167,31 +175,31 @@ export default class Header {
   }
 
   get licenseeCodeNew(): string {
-    return this._buffer.toString("ascii", 0x0144, 0x0146);
+    return this._buffer.toString("ascii", 0x44, 0x46);
   }
   set licenseeCodeNew(value: string) {
-    this._buffer.write(padNull(value, 2), 0x0144, 2, "ascii");
+    this._buffer.write(padNull(value, 2), 0x44, 2, "ascii");
   }
 
   get licenseeCodeOld(): number {
-    return this._buffer.readUInt8(0x014b);
+    return this._buffer.readUInt8(0x4b);
   }
   set licenseeCodeOld(value: number) {
-    this._buffer.writeUInt8(value, 0x014b);
+    this._buffer.writeUInt8(value, 0x4b);
   }
 
   get manufacturerCode(): string {
-    return trimNull(this._buffer.toString("ascii", 0x013f, 0x0143));
+    return trimNull(this._buffer.toString("ascii", 0x3f, 0x43));
   }
   set manufacturerCode(value: string) {
-    this._buffer.write(padNull(value, 4), 0x013f, 4, "ascii");
+    this._buffer.write(padNull(value, 4), 0x3f, 4, "ascii");
   }
 
   get destinationCode(): number {
-    return this._buffer.readUInt8(0x014a);
+    return this._buffer.readUInt8(0x4a);
   }
   set destinationCode(value: number) {
-    this._buffer.writeUInt8(value, 0x014a);
+    this._buffer.writeUInt8(value, 0x4a);
   }
 
   get destination(): string | undefined {
@@ -199,18 +207,18 @@ export default class Header {
   }
 
   get headerChecksum(): number {
-    return this._buffer.readUInt8(0x014d);
+    return this._buffer.readUInt8(0x4d);
   }
   set headerChecksum(value: number) {
-    this._buffer.writeUInt8(value, 0x014d);
+    this._buffer.writeUInt8(value, 0x4d);
   }
 
   get globalChecksum(): number {
-    return this._buffer.readUInt16BE(0x014e);
+    return this._buffer.readUInt16BE(0x4e);
   }
 
   get headerChecksumCalc(): number {
-    const headerBuffer = this._buffer.subarray(0x0134, 0x014d);
+    const headerBuffer = this._buffer.subarray(0x34, 0x4d);
     let checksum = 0x00;
 
     for (const byte of headerBuffer.values()) {

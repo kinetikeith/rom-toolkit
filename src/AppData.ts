@@ -23,7 +23,7 @@ interface AppContextType {
   setFile: (file: File) => Promise<void>;
 
   buffer: Buffer;
-  updateBuffer: (arg: UpdateArg<Buffer>) => void;
+  updateBuffer: (arg?: UpdateArg<Buffer>) => void;
 }
 
 const AppContext = createContext<AppContextType>({
