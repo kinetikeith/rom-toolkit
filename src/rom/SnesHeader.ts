@@ -6,6 +6,8 @@ import destinations from "./data/snesDestinations.json";
 
 const destinationMap: Map<number, string> = keysAsHex(destinations);
 
+export {destinationMap};
+
 export default class SnesHeader {
   _buffer: Buffer;
   readonly validityScore: number;
@@ -64,7 +66,7 @@ export default class SnesHeader {
   }
   get ramExpansionSize(): number {
     const ramExpansionCode = this.ramExpansionCode;
-    return (ramExpansionCode === 0x00) ? 0 : 1024 << ramExpansionCode;
+    return ramExpansionCode === 0x00 ? 0 : 1024 << ramExpansionCode;
   }
 
   get versionSpecial(): number {

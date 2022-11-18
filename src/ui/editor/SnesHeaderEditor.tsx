@@ -1,9 +1,10 @@
 import { useState, useContext } from "react";
 
 import AppContext from "../../AppData";
-import SnesHeader from "../../rom/SnesHeader";
+import SnesHeader, {destinationMap} from "../../rom/SnesHeader";
 import StringDialog from "../dialog/StringDialog";
 import IntDialog from "../dialog/IntDialog";
+import ChoiceDialog from "../dialog/ChoiceDialog";
 import { HeaderEntry, HeaderDivider } from "./HeaderEditor";
 import { asBytes, asHex } from "../format";
 
@@ -24,6 +25,9 @@ export default function SnesHeaderEditor(props: {}) {
 
   const header = new SnesHeader(context.buffer);
 
+  const setFieldTo = (value: Field) => (
+    () => setField(value)
+  );
   const closeField = () => setField(Field.None);
 
   return (
@@ -65,11 +69,57 @@ export default function SnesHeaderEditor(props: {}) {
         }}
       />
       <HeaderDivider>Licensing</HeaderDivider>
-      <HeaderEntry label="Maker Code">{header.makerCode}</HeaderEntry>
-      <HeaderEntry label="Game Code">{header.gameCode}</HeaderEntry>
-      <HeaderEntry label="Destination">
+      <HeaderEntry label="Maker Code" onEdit={setFieldTo(Field.MakerCode)}>
+        {header.makerCode}
+      </HeaderEntry>
+      <StringDialog
+        title="Edit Maker Code"
+        open={field === Field.MakerCode}
+        value={header.makerCode}
+        maxLength={2}
+        onCancel={closeField}
+        onSubmit={(value) => {
+          context.updateBuffer((buffer) => {
+            const newHeader = new SnesHeader(buffer);
+            newHeader.makerCode = value;
+          });
+          closeField();
+        }}
+      />
+      <HeaderEntry label="Game Code" onEdit={setFieldTo(Field.GameCode)}>
+        {header.gameCode}
+      </HeaderEntry>
+      <StringDialog
+        title="Edit Game Code"
+        open={field === Field.GameCode}
+        value={header.gameCode}
+        maxLength={4}
+        onCancel={closeField}
+        onSubmit={(value) => {
+          context.updateBuffer((buffer) => {
+            const newHeader = new SnesHeader(buffer);
+            newHeader.gameCode = value;
+          });
+          closeField();
+        }}
+      />
+      <HeaderEntry label="Destination" onEdit={setFieldTo(Field.Destination)}>
         {header.destination || "Unknown"}
       </HeaderEntry>
+      <ChoiceDialog
+        title="Edit Destination"
+        open={field === Field.Destination}
+        value={header.destinationCode}
+        optionMap={destinationMap}
+        onCancel={closeField}
+        onSubmit={(value) => {
+          context.updateBuffer((buffer) => {
+            const newHeader = new SnesHeader(buffer);
+            newHeader.destinationCode = value;
+          });
+          closeField();
+        }}
+      />
       <HeaderDivider>Hardware</HeaderDivider>
       <HeaderEntry label="ROM Size">{asBytes(header.romSize)}</HeaderEntry>
       <HeaderEntry label="RAM Size">{asBytes(header.ramSize)}</HeaderEntry>
