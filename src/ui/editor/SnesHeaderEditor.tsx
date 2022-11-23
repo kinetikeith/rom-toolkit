@@ -1,7 +1,11 @@
 import { useState, useContext } from "react";
 
 import AppContext from "../../AppData";
-import SnesHeader, { destinationMap } from "../../rom/SnesHeader";
+import SnesHeader, {
+  destinationMap,
+  ramMap,
+  romMap,
+} from "../../rom/SnesHeader";
 import StringDialog from "../dialog/StringDialog";
 import IntDialog from "../dialog/IntDialog";
 import ChoiceDialog from "../dialog/ChoiceDialog";
@@ -18,6 +22,20 @@ enum Field {
   RomSize,
   RamSize,
 }
+
+const ramCodeLabelMap = new Map<number, string>(
+  [...ramMap.entries()].map(([key, value]) => [
+    key,
+    asBytes(value) || "Unknown",
+  ])
+);
+
+const romCodeLabelMap = new Map<number, string>(
+  [...romMap.entries()].map(([key, value]) => [
+    key,
+    asBytes(value) || "Unknown",
+  ])
+);
 
 export default function SnesHeaderEditor(props: {}) {
   const [field, setField] = useState<Field>(Field.None);
@@ -114,11 +132,38 @@ export default function SnesHeaderEditor(props: {}) {
         }}
       />
       <HeaderDivider>Hardware</HeaderDivider>
-      <HeaderEntry label="ROM Size">{asBytes(header.romSize)}</HeaderEntry>
-      <HeaderEntry label="RAM Size">{asBytes(header.ramSize)}</HeaderEntry>
-      <HeaderEntry label="Expansion RAM Size">
-        {asBytes(header.ramExpansionSize)}
+      <HeaderEntry label="ROM Size" onEdit={setFieldTo(Field.RomSize)}>
+        {asBytes(header.romSize)}
       </HeaderEntry>
+      <ChoiceDialog
+        title="Edit ROM Size"
+        open={field === Field.RomSize}
+        value={header.romCode}
+        optionMap={romCodeLabelMap}
+        onCancel={closeField}
+        onSubmit={(value) => {
+          header.romCode = value;
+
+          context.updateBuffer();
+          closeField();
+        }}
+      />
+      <HeaderEntry label="RAM Size" onEdit={setFieldTo(Field.RamSize)}>
+        {asBytes(header.ramSize)}
+      </HeaderEntry>
+      <ChoiceDialog
+        title="Edit RAM Size"
+        open={field === Field.RamSize}
+        value={header.ramCode}
+        optionMap={ramCodeLabelMap}
+        onCancel={closeField}
+        onSubmit={(value) => {
+          header.ramCode = value;
+
+          context.updateBuffer();
+          closeField();
+        }}
+      />
       <HeaderDivider>Checksums</HeaderDivider>
       <HeaderEntry label="Global Checksum">
         {asHex(header.globalChecksum, 4)}

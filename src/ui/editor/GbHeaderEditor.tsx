@@ -111,7 +111,7 @@ export default function GbHeaderEditor(props: {}) {
   return (
     <>
       <HeaderDivider>General</HeaderDivider>
-      <HeaderEntry label="Title" onEdit={() => setField(Field.Title)}>
+      <HeaderEntry label="Title" onEdit={setFieldTo(Field.Title)}>
         {header.title}
       </HeaderEntry>
       <StringDialog
@@ -233,7 +233,7 @@ export default function GbHeaderEditor(props: {}) {
           closeField();
         }}
       />
-      <HeaderEntry label="SGB Flag" onEdit={() => setFieldTo(Field.SgbFlag)}>
+      <HeaderEntry label="SGB Flag" onEdit={setFieldTo(Field.SgbFlag)}>
         {asHex(header.sgbFlag)}
       </HeaderEntry>
       <HexDialog
@@ -249,7 +249,7 @@ export default function GbHeaderEditor(props: {}) {
         }}
       />
       <HeaderDivider>Hardware</HeaderDivider>
-      <HeaderEntry label="ROM Size" onEdit={() => setFieldTo(Field.RomSize)}>
+      <HeaderEntry label="ROM Size" onEdit={setFieldTo(Field.RomSize)}>
         {asBytes(header.romSize)}
       </HeaderEntry>
       <ChoiceDialog
@@ -264,7 +264,7 @@ export default function GbHeaderEditor(props: {}) {
           closeField();
         }}
       />
-      <HeaderEntry label="RAM Size" onEdit={() => setFieldTo(Field.RamSize)}>
+      <HeaderEntry label="RAM Size" onEdit={setFieldTo(Field.RamSize)}>
         {asBytes(header.ramSize)}
       </HeaderEntry>
       <ChoiceDialog
@@ -281,7 +281,7 @@ export default function GbHeaderEditor(props: {}) {
       />
       <HeaderEntry
         label="Cartridge Features"
-        onEdit={() => setFieldTo(Field.Features)}
+        onEdit={setFieldTo(Field.Features)}
       >
         <CartridgeFeatures code={header.cartridgeCode} />
       </HeaderEntry>

@@ -1,12 +1,16 @@
 import { Buffer } from "buffer";
 
 import { trimNull, padNull, keysAsHex } from "./utils";
+import { range } from "../utils";
 
 import destinations from "./data/snesDestinations.json";
 
 const destinationMap: Map<number, string> = keysAsHex(destinations);
 
-export { destinationMap };
+const ramMap = new Map<number, number>(range(16).map((i) => [i, 1024 << i]));
+const romMap = new Map<number, number>(range(20).map((i) => [i, 1024 << i]));
+
+export { destinationMap, ramMap, romMap };
 
 function findHeader(buffer: Buffer): [Buffer, number] {
   const offsets = [0xff00, 0x7f00, 0x40ff00];
@@ -108,8 +112,8 @@ export default class SnesHeader {
   set romCode(value: number) {
     this._buffer.writeUInt8(value, 0xd7);
   }
-  get romSize(): number {
-    return 1024 << this.romCode;
+  get romSize(): number | undefined {
+    return romMap.get(this.romCode);
   }
 
   get ramCode(): number {
@@ -118,10 +122,8 @@ export default class SnesHeader {
   set ramCode(value: number) {
     this._buffer.writeUInt8(value, 0xd8);
   }
-  get ramSize(): number {
-    const ramCode = this.ramCode;
-    if (ramCode === 0x00) return 0;
-    return 1024 << ramCode;
+  get ramSize(): number | undefined {
+    return ramMap.get(this.ramCode);
   }
 
   get destinationCode(): number {

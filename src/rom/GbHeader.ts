@@ -1,11 +1,11 @@
 import { Buffer } from "buffer";
 
 import { trimNull, padNull, keysAsHex } from "./utils";
+import { range } from "../utils";
 import GbLogo from "./GbLogo";
 
 import licenseesOld from "./data/gbLicenseesOld.json";
 import licenseesNew from "./data/gbLicenseesNew.json";
-import romBanks from "./data/gbRomBanks.json";
 import ramBanks from "./data/gbRamBanks.json";
 import destinations from "./data/gbDestinations.json";
 import features from "./data/gbFeatures.json";
@@ -17,20 +17,16 @@ interface MemoryInfo {
 
 const licenseeMapOld = keysAsHex(licenseesOld);
 const licenseeMapNew = new Map<string, string>();
-const romMap = new Map<number, MemoryInfo>();
+const romMap = new Map<number, MemoryInfo>(
+  range(9).map((i) => [i, { banks: 2 << i, size: 32768 }])
+);
+
 const ramMap = new Map<number, MemoryInfo>();
 const destinationMap = keysAsHex(destinations);
 const featureMap = keysAsHex(features);
 
 for (const [key, value] of Object.entries(licenseesNew)) {
   licenseeMapNew.set(key, value);
-}
-
-for (const [key, value] of Object.entries(romBanks)) {
-  romMap.set(Number.parseInt(key, 16), {
-    banks: value,
-    size: 16384 * value,
-  });
 }
 
 for (const [key, value] of Object.entries(ramBanks)) {

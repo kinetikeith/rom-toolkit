@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
 import { Buffer } from "buffer";
 
 import AppContext from "../../AppData";
@@ -14,7 +15,6 @@ export default function PatchEditor(props: {}) {
     (file: File) => {
       file.arrayBuffer().then((arrayBuffer) => {
         const patch = new IpsPatch(Buffer.from(arrayBuffer));
-        console.log([...patch.chunks]);
 
         context.updateBuffer(patch.applyTo(context.buffer));
       });
@@ -23,8 +23,10 @@ export default function PatchEditor(props: {}) {
   );
 
   return (
-    <Button variant="contained" color="secondary" onClick={triggerUpload}>
-      Open Patch
-    </Button>
+    <Container>
+      <Button variant="contained" color="secondary" onClick={triggerUpload}>
+        Open Patch
+      </Button>
+    </Container>
   );
 }
