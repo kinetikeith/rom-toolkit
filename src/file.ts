@@ -1,23 +1,21 @@
 import { useEffect } from "react";
 import { Buffer } from "buffer";
 
-export function useUpload(
-  onUpload: (file: File) => any,
-  accept: string[] = []
+function useUploadElem(
+  accept: string[],
+  multiple: boolean,
+  onChange: (event: any) => void
 ) {
+  /* Gnarly react hook for creating hidden file input at top level of document */
+
+  /* Create an input element and set its attributes */
   const elem = document.createElement("input");
   elem.hidden = true;
   elem.setAttribute("type", "file");
   elem.setAttribute("accept", accept.join(","));
+  elem.multiple = multiple;
 
-  const onChange = (event: any) => {
-    const file = event.target.files?.[0];
-    if (file === undefined) return;
-    if (file === null) return;
-
-    onUpload(file);
-  };
-
+  /* Use an effect to set up and tear down the input element */
   useEffect(() => {
     document.body.appendChild(elem);
     elem.addEventListener("change", onChange);
@@ -27,9 +25,43 @@ export function useUpload(
     };
   });
 
-  const triggerUpload = () => {
+  /* return the upload trigger function */
+  return () => {
     elem.click();
   };
+}
+
+export function useUpload(
+  onUpload: (file: File) => any,
+  accept: string[] = []
+) {
+  /* Handle uploading of a single file */
+  const onChange = (event: any) => {
+    const file = event.target.files?.[0];
+    if (file === undefined) return;
+    if (file === null) return;
+
+    onUpload(file);
+  };
+
+  const triggerUpload = useUploadElem(accept, false, onChange);
+
+  return triggerUpload;
+}
+
+export function useUploads(
+  onUpload: (file: File[]) => any,
+  accept: string[] = []
+) {
+  /* Handle uploading of multiple files */
+  const onChange = (event: any) => {
+    const files = event.target.files;
+    if (files === undefined) return;
+
+    onUpload(Array.from(files));
+  };
+
+  const triggerUpload = useUploadElem(accept, true, onChange);
 
   return triggerUpload;
 }

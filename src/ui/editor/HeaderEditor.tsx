@@ -1,7 +1,4 @@
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
 import Divider, { DividerProps } from "@mui/material/Divider";
-import Box, { BoxProps } from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 
 import InfoIcon from "@mui/icons-material/InfoOutlined";
@@ -10,9 +7,7 @@ import ReplayIcon from "@mui/icons-material/Replay";
 
 import { styled } from "@mui/material/styles";
 
-const HeaderTypography = styled(Typography)`
-  font-family: "Roboto Mono", monospace;
-`;
+import LabeledValue from "../component/LabeledValue";
 
 export const HeaderDivider = styled((props: DividerProps) => (
   <Divider variant="middle" {...props} />
@@ -21,12 +16,6 @@ export const HeaderDivider = styled((props: DividerProps) => (
   paddingBottom: theme.spacing(1),
   color: theme.palette.text.disabled,
 }));
-
-const HeaderSpacer = styled((props: BoxProps) => <Box {...props} />)<BoxProps>(
-  ({ theme }) => ({
-    width: theme.spacing(9),
-  })
-);
 
 interface HeaderEntryProps {
   label: string;
@@ -64,15 +53,11 @@ export function HeaderEntry(props: HeaderEntryProps) {
   );
 
   return (
-    <Stack direction="row" justifyContent="space-between" alignItems="center">
-      <HeaderTypography>{props.label}</HeaderTypography>
-      <HeaderSpacer />
-      <Stack direction="row" alignItems="center">
-        <HeaderTypography color={props.color}>
-          {props.children}
-        </HeaderTypography>
+    <LabeledValue label={props.label} space={9}>
+      <>
+        {props.children}
         {interactButton}
-      </Stack>
-    </Stack>
+      </>
+    </LabeledValue>
   );
 }

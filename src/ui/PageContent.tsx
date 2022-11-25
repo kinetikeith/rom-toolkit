@@ -12,13 +12,13 @@ import RomOpener from "./RomOpener";
 import GbContent from "./content/GbContent";
 import SnesContent from "./content/SnesContent";
 
-interface AppContentProps {
+interface PageContentProps {
   fileName: string;
   fileState: FileState;
   resetBuffer: () => any;
 }
 
-export default function AppContent(props: AppContentProps) {
+export default function PageContent(props: PageContentProps) {
   const context = useContext(AppContext);
   const triggerDownload = useDownload(props.fileName, context.buffer);
 

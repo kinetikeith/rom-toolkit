@@ -8,9 +8,11 @@ interface Chunk {
 
 export default class IpsPatch {
   _buffer: Buffer;
+  readonly fileName: string;
 
-  constructor(buffer: Buffer) {
+  constructor(buffer: Buffer, fileName: string = "") {
     this._buffer = buffer;
+    this.fileName = fileName;
   }
 
   get validityScore() {
@@ -58,7 +60,7 @@ export default class IpsPatch {
   }
 
   get chunks() {
-    return this.getChunks();
+    return Array.from(this.getChunks());
   }
 
   applyTo(buffer: Buffer): Buffer {
