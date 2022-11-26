@@ -4,7 +4,6 @@ import { Buffer } from "buffer";
 import { UpdateArg } from "./wrap";
 
 export enum RomType {
-  None,
   Generic,
   Gb,
   Gba,
@@ -27,7 +26,7 @@ interface AppContextType {
 }
 
 const AppContext = createContext<AppContextType>({
-  romType: RomType.None,
+  romType: RomType.Generic,
   setFile: async () => {},
 
   buffer: Buffer.alloc(0),

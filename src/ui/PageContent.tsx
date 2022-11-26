@@ -11,6 +11,7 @@ import AppContext, { RomType, FileState } from "../AppData";
 import RomOpener from "./RomOpener";
 import GbContent from "./content/GbContent";
 import SnesContent from "./content/SnesContent";
+import GenericContent from "./content/GenericContent";
 
 interface PageContentProps {
   fileName: string;
@@ -27,7 +28,6 @@ export default function PageContent(props: PageContentProps) {
   if (props.fileState === FileState.Missing) content = <RomOpener />;
   else {
     let editorContent = null;
-    if (context.romType === RomType.Generic) editorContent = null;
     switch (context.romType) {
       case RomType.Gb:
         editorContent = <GbContent />;
@@ -35,6 +35,8 @@ export default function PageContent(props: PageContentProps) {
       case RomType.Snes:
         editorContent = <SnesContent />;
         break;
+      case RomType.Generic:
+        editorContent = <GenericContent />;
     }
 
     const saveVariant =

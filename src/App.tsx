@@ -35,7 +35,7 @@ const themeMap = new Map([
 export default function App(props: {}) {
   const [fileInfo, setFileInfo] = useState<FileInfo>({
     name: "",
-    romType: RomType.None,
+    romType: RomType.Generic,
     arrayBuffer: new ArrayBuffer(0),
   });
   const [fileState, setFileState] = useState<FileState>(FileState.Missing);

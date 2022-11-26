@@ -11,7 +11,7 @@ export function detectRomType(buffer: Buffer): RomType {
   const snesHeader = SnesHeader.fromRom(buffer);
   if (snesHeader.validity > 0) return RomType.Snes;
 
-  return RomType.None;
+  return RomType.Generic;
 }
 
 export function trim(value: string, char: string) {
