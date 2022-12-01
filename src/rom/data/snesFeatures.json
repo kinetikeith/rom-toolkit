@@ -1,0 +1,21 @@
+{
+  "0x00": ["ROM"],
+  "0x01": ["ROM", "RAM"],
+  "0x02": ["ROM", "RAM", "Battery"],
+  "0x03": ["ROM", "DSP"],
+  "0x04": ["ROM", "RAM", "DSP"],
+  "0x05": ["ROM", "RAM", "DSP", "Battery"],
+  "0x13": ["ROM", "EXPRAM", "Mario Chip 1"],
+  "0x25": ["ROM", "RAM", "OBC-1", "Battery"],
+  "0x32": ["ROM", "RAM", "SA-1", "Battery"],
+  "0x34": ["ROM", "RAM", "SA-1"],
+  "0x35": ["ROM", "RAM", "SA-1", "Battery"],
+  "0x36": ["ROM", "SA-1", "Battery"],
+  "0x43": ["ROM", "S-DD1"],
+  "0x45": ["ROM", "RAM", "S-DD1", "Battery"],
+  "0x55": ["ROM", "RAM", "S-RTC", "Battery"],
+  "0xe3": ["ROM", "SGB"],
+  "0xe5": ["ROM", "BS-X"],
+
+  "0x1a": ["ROM", "RAM", "GSU-2-SP1", "Battery"]
+}

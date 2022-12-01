@@ -4,13 +4,17 @@ import { trimNull, padNull, keysAsHex } from "./utils";
 import { range } from "../utils";
 
 import destinations from "./data/snesDestinations.json";
+import mappers from "./data/snesMappers.json";
+import features from "./data/snesFeatures.json";
 
 const destinationMap: Map<number, string> = keysAsHex(destinations);
+const mapperMap: Map<number, string> = keysAsHex(mappers);
+const featureMap: Map<number, string[]> = keysAsHex(features);
 
 const ramMap = new Map<number, number>(range(16).map((i) => [i, 1024 << i]));
 const romMap = new Map<number, number>(range(20).map((i) => [i, 1024 << i]));
 
-export { destinationMap, ramMap, romMap };
+export { destinationMap, ramMap, romMap, mapperMap, featureMap };
 
 function findHeader(buffer: Buffer): [Buffer, number] {
   const offsets = [0xff00, 0x7f00, 0x40ff00];
@@ -98,12 +102,51 @@ export default class SnesHeader {
     this._buffer.write(value.padEnd(21, " "), 0xc0, 21, "utf8");
   }
 
-  get mapperCode(): number {
+  get mapModeCode(): number {
     return this._buffer.readUInt8(0xd5);
+  }
+  get mapperCode(): number {
+    return this.mapModeCode & 0x0f;
+  }
+  set mapperCode(value: number) {
+    const code = this.mapModeCode;
+    this._buffer.writeUInt8((0xf0 & code) | (value & 0x0f), 0xd5);
+  }
+  get mapper(): string | undefined {
+    return mapperMap.get(this.mapperCode);
+  }
+  get isMapperFast(): number {
+    return this.mapModeCode & 0x10;
   }
 
   get cartridgeCode(): number {
     return this._buffer.readUInt8(0xd6);
+  }
+  get features(): string[] {
+    const code = this.cartridgeCode;
+    const subCode = this.cartridgeSubCode;
+    const gameCode = this.gameCode;
+    const rom1mb = this.romCode > 0x0a;
+
+    if (code === 0x14) {
+      return ["ROM", "RAM", rom1mb ? "GSU-1" : "GSU-2"];
+    } else if (code === 0x15) {
+      return ["ROM", "RAM", rom1mb ? "GSU-1" : "GSU-2", "Battery"];
+    } else if (code === 0xf3) {
+      if (subCode === 0x10) return ["ROM", "CX4"];
+    } else if (code === 0xf5) {
+      if (subCode === 0x00) return ["ROM", "RAM", "SPC7110", "Battery"];
+      else if (subCode === 0x02) return ["ROM", "RAM", "ST-018", "Battery"];
+    } else if (code === 0xf6) {
+      if (subCode === 0x01) return ["ROM", "ST-010/011", "Battery"];
+    } else if (code === 0xf9) {
+      if (subCode === 0x00) return ["ROM", "RAM", "SPC7110", "RTC", "Battery"];
+    } else if (gameCode === "XBND")
+      return ["ROM", "RAM", "Battery", "XBand Modem"];
+    else if (gameCode === "MENU")
+      return ["ROM", "RAM", "Battery", "MX15001TFC"];
+
+    return featureMap.get(code) || [];
   }
 
   get romCode(): number {
@@ -134,6 +177,10 @@ export default class SnesHeader {
   }
   get destination(): string | undefined {
     return destinationMap.get(this.destinationCode);
+  }
+
+  get isNewFormat(): boolean {
+    return this._buffer.readUInt8(0xda) === 0x33;
   }
 
   get version(): number {

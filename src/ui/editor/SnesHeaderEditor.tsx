@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 
 import AppContext from "../../AppData";
 import SnesHeader, {
+  mapperMap,
   destinationMap,
   ramMap,
   romMap,
@@ -19,6 +20,7 @@ enum Field {
   MakerCode,
   GameCode,
   Destination,
+  Mapper,
   RomSize,
   RamSize,
 }
@@ -143,6 +145,22 @@ export default function SnesHeaderEditor(props: {}) {
         onCancel={closeField}
         onSubmit={(value) => {
           header.romCode = value;
+
+          context.updateBuffer();
+          closeField();
+        }}
+      />
+      <HeaderEntry label="ROM Mapper" onEdit={setFieldTo(Field.Mapper)}>
+        {header.mapper || "Unknown"}
+      </HeaderEntry>
+      <ChoiceDialog
+        title="Edit ROM Mapper"
+        open={field === Field.Mapper}
+        value={header.mapperCode}
+        optionMap={mapperMap}
+        onCancel={closeField}
+        onSubmit={(value) => {
+          header.mapperCode = value;
 
           context.updateBuffer();
           closeField();
