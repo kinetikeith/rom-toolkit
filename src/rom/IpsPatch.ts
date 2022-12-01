@@ -1,4 +1,5 @@
 import { Buffer } from "buffer";
+import { min, max } from "lodash";
 
 interface Chunk {
   offset: number;
@@ -63,15 +64,21 @@ export default class IpsPatch {
     return Array.from(this.getChunks());
   }
 
+  get begin() {
+    return min(this.chunks.map((chunk) => chunk.offset));
+  }
+
+  get end() {
+    return max(this.chunks.map((chunk) => chunk.offset + chunk.length));
+  }
+
   applyTo(buffer: Buffer): Buffer {
     let resBuffer = buffer;
-    const chunks = [...this.getChunks()];
-    chunks.sort((chunk) => chunk.offset);
-    const lastChunk = chunks[chunks.length - 1];
-    const patchLength = lastChunk.offset + lastChunk.length;
+    const chunks = this.chunks;
+    const end = max(chunks.map((chunk) => chunk.offset + chunk.length)) || 0;
 
-    if (patchLength > buffer.length) {
-      resBuffer = Buffer.alloc(patchLength);
+    if (end > buffer.length) {
+      resBuffer = Buffer.alloc(end);
       buffer.copy(resBuffer);
     }
 

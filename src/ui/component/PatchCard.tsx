@@ -21,6 +21,12 @@ export default function PatchCard(props: {
         <LabeledValue label="Blocks" space={5}>
           {props.value.chunks.length}
         </LabeledValue>
+        <LabeledValue label="Begin Address" space={3}>
+          {props.value.begin}
+        </LabeledValue>
+        <LabeledValue label="End Address" space={3}>
+          {props.value.end}
+        </LabeledValue>
       </CardContent>
       <CardActions>
         <Button onClick={props.onApply} variant="contained">
