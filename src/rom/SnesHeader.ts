@@ -14,6 +14,40 @@ const featureMap: Map<number, string[]> = keysAsHex(features);
 const ramMap = new Map<number, number>(range(16).map((i) => [i, 1024 << i]));
 const romMap = new Map<number, number>(range(20).map((i) => [i, 1024 << i]));
 
+enum SpecialFeature {
+  Gsu1 = -128,
+  Gsu2,
+  Gsu1Battery,
+  Gsu2Battery,
+  Cx4,
+  Spc7110,
+  St018,
+  St010,
+  Spc7110Rtc,
+  Xband,
+  Power,
+}
+
+featureMap.set(SpecialFeature.Gsu1, ["ROM", "RAM", "GSU-1"]);
+featureMap.set(SpecialFeature.Gsu2, ["ROM", "RAM", "GSU-2"]);
+featureMap.set(SpecialFeature.Gsu1Battery, ["ROM", "RAM", "Battery", "GSU-1"]);
+featureMap.set(SpecialFeature.Gsu2Battery, ["ROM", "RAM", "Battery", "GSU-2"]);
+featureMap.set(SpecialFeature.Cx4, ["ROM", "Cx4"]);
+featureMap.set(SpecialFeature.Spc7110, ["ROM", "RAM", "Battery", "SPC7110"]);
+featureMap.set(SpecialFeature.St018, ["ROM", "RAM", "Battery", "STC-018"]);
+featureMap.set(SpecialFeature.St010, ["ROM", "Battery", "ST-010/011"]);
+featureMap.set(SpecialFeature.Spc7110Rtc, [
+  "ROM",
+  "RAM",
+  "Battery",
+  "RTC",
+  "SPC7110",
+]);
+featureMap.set(SpecialFeature.Xband, ["ROM", "RAM", "Battery", "RC2324DPL"]);
+featureMap.set(SpecialFeature.Power, ["ROM", "RAM", "Battery", "MX15001TFC"]);
+
+type FeatureCode = SpecialFeature | number;
+
 export { destinationMap, ramMap, romMap, mapperMap, featureMap };
 
 function findHeader(buffer: Buffer): [Buffer, number] {
@@ -94,6 +128,9 @@ export default class SnesHeader {
   get cartridgeSubCode(): number {
     return this._buffer.readUInt8(0xbf);
   }
+  set cartridgeSubCode(value: number) {
+    this._buffer.writeUInt8(value, 0xbf);
+  }
 
   get title(): string {
     return this._buffer.toString("utf8", 0xc0, 0xd5).trimEnd();
@@ -122,31 +159,92 @@ export default class SnesHeader {
   get cartridgeCode(): number {
     return this._buffer.readUInt8(0xd6);
   }
-  get features(): string[] {
+  set cartridgeCode(value: number) {
+    this._buffer.writeUInt8(value, 0xd6);
+  }
+
+  get featureCode(): FeatureCode {
     const code = this.cartridgeCode;
     const subCode = this.cartridgeSubCode;
     const gameCode = this.gameCode;
-    const rom1mb = this.romCode > 0x0a;
+    const rom1mb = this.romCode < 0x0a;
 
-    if (code === 0x14) {
-      return ["ROM", "RAM", rom1mb ? "GSU-1" : "GSU-2"];
-    } else if (code === 0x15) {
-      return ["ROM", "RAM", rom1mb ? "GSU-1" : "GSU-2", "Battery"];
-    } else if (code === 0xf3) {
-      if (subCode === 0x10) return ["ROM", "CX4"];
+    if (code === 0x14)
+      return rom1mb ? SpecialFeature.Gsu1 : SpecialFeature.Gsu2;
+    else if (code === 0x15)
+      return rom1mb ? SpecialFeature.Gsu1Battery : SpecialFeature.Gsu2Battery;
+    else if (code === 0xf3) {
+      if (subCode === 0x10) return SpecialFeature.Cx4;
     } else if (code === 0xf5) {
-      if (subCode === 0x00) return ["ROM", "RAM", "SPC7110", "Battery"];
-      else if (subCode === 0x02) return ["ROM", "RAM", "ST-018", "Battery"];
+      if (subCode === 0x00) return SpecialFeature.Spc7110;
+      else if (subCode === 0x02) return SpecialFeature.St018;
     } else if (code === 0xf6) {
-      if (subCode === 0x01) return ["ROM", "ST-010/011", "Battery"];
+      if (subCode === 0x01) return SpecialFeature.St010;
     } else if (code === 0xf9) {
-      if (subCode === 0x00) return ["ROM", "RAM", "SPC7110", "RTC", "Battery"];
-    } else if (gameCode === "XBND")
-      return ["ROM", "RAM", "Battery", "XBand Modem"];
-    else if (gameCode === "MENU")
-      return ["ROM", "RAM", "Battery", "MX15001TFC"];
+      if (subCode === 0x00) return SpecialFeature.Spc7110Rtc;
+    } else if (gameCode === "XBND") return SpecialFeature.Xband;
+    else if (gameCode === "MENU") return SpecialFeature.Power;
 
-    return featureMap.get(code) || [];
+    return code;
+  }
+  set featureCode(value: FeatureCode) {
+    switch (value) {
+      case SpecialFeature.Gsu1:
+      case SpecialFeature.Gsu2:
+        this.cartridgeCode = 0x14;
+        this.clearSpecialGameCode();
+        break;
+      case SpecialFeature.Gsu1Battery:
+      case SpecialFeature.Gsu2Battery:
+        this.cartridgeCode = 0x15;
+        this.clearSpecialGameCode();
+        break;
+      case SpecialFeature.Cx4:
+        this.cartridgeCode = 0xf3;
+        this.cartridgeSubCode = 0x10;
+        this.clearSpecialGameCode();
+        break;
+      case SpecialFeature.Spc7110:
+        this.cartridgeCode = 0xf5;
+        this.cartridgeSubCode = 0x00;
+        this.clearSpecialGameCode();
+        break;
+      case SpecialFeature.St018:
+        this.cartridgeCode = 0xf5;
+        this.cartridgeSubCode = 0x02;
+        this.clearSpecialGameCode();
+        break;
+      case SpecialFeature.St010:
+        this.cartridgeCode = 0xf6;
+        this.cartridgeSubCode = 0x01;
+        this.clearSpecialGameCode();
+        break;
+      case SpecialFeature.Spc7110Rtc:
+        this.cartridgeCode = 0xf9;
+        this.cartridgeSubCode = 0x00;
+        this.clearSpecialGameCode();
+        break;
+      case SpecialFeature.Xband:
+        this.gameCode = "XBND";
+        this.cartridgeCode = 0x02;
+        this.cartridgeSubCode = 0x00;
+        break;
+      case SpecialFeature.Power:
+        this.gameCode = "MENU";
+        this.cartridgeCode = 0x02;
+        this.cartridgeSubCode = 0x00;
+        break;
+    }
+    if (value >= 0x00 && value <= 0xff) {
+      this.cartridgeCode = value;
+      this.clearSpecialGameCode();
+    }
+  }
+
+  clearSpecialGameCode() {
+    const code = this.gameCode;
+    if (code === "XBND") this.gameCode = "";
+    else if (code === "MENU") this.gameCode = "";
   }
 
   get romCode(): number {

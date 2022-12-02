@@ -1,11 +1,28 @@
 import { useState, useContext } from "react";
 
+import SdCardIcon from "@mui/icons-material/SdCard";
+import MemoryIcon from "@mui/icons-material/Memory";
+import BatteryIcon from "@mui/icons-material/Battery5Bar";
+import ClockIcon from "@mui/icons-material/AccessTime";
+import MathIcon from "@mui/icons-material/Calculate";
+import ZipIcon from "@mui/icons-material/FolderZip";
+import ProcessorIcon from "@mui/icons-material/DeveloperBoard";
+import DspIcon from "@mui/icons-material/GraphicEq";
+import SpriteIcon from "@mui/icons-material/Animation";
+import CubeIcon from "@mui/icons-material/ViewInAr";
+import AiIcon from "@mui/icons-material/Psychology";
+import GameIcon from "@mui/icons-material/VideogameAsset";
+import FlashIcon from "@mui/icons-material/FlashOn";
+import RouterIcon from "@mui/icons-material/Router";
+import HelpIcon from "@mui/icons-material/Help";
+
 import AppContext from "../../AppData";
 import SnesHeader, {
   mapperMap,
   destinationMap,
   ramMap,
   romMap,
+  featureMap,
 } from "../../rom/SnesHeader";
 import StringDialog from "../dialog/StringDialog";
 import IntDialog from "../dialog/IntDialog";
@@ -23,6 +40,7 @@ enum Field {
   Mapper,
   RomSize,
   RamSize,
+  Features,
 }
 
 const ramCodeLabelMap = new Map<number, string>(
@@ -38,6 +56,50 @@ const romCodeLabelMap = new Map<number, string>(
     asBytes(value) || "Unknown",
   ])
 );
+
+const featureCodeLabelMap = new Map<number, string>(
+  [...featureMap.entries()].map(([key, value]) => [key, value.join(", ")])
+);
+
+function CartridgeFeatures(props: { code: number }) {
+  const featureList = featureMap.get(props.code) || ["Unknown"];
+  const icons = featureList.map((feature) => {
+    if (feature === "ROM") return SdCardIcon;
+    else if (feature === "RAM") return MemoryIcon;
+    else if (feature === "Battery") return BatteryIcon;
+    else if (feature === "RTC") return ClockIcon;
+    else if (feature === "MARIO Chip 1") return CubeIcon;
+    else if (feature === "GSU-1") return CubeIcon;
+    else if (feature === "GSU-2") return CubeIcon;
+    else if (feature === "GSU-2-SP1") return CubeIcon;
+    else if (feature === "Cx4") return MathIcon;
+    else if (feature === "DSP") return DspIcon;
+    else if (feature === "DSP-1") return DspIcon;
+    else if (feature === "DSP-2") return DspIcon;
+    else if (feature === "DSP-3") return DspIcon;
+    else if (feature === "DSP-4") return DspIcon;
+    else if (feature === "LR35902") return GameIcon;
+    else if (feature === "MX15001TFC") return FlashIcon;
+    else if (feature === "OBC-1") return SpriteIcon;
+    else if (feature === "RC2324DPL") return RouterIcon;
+    else if (feature === "BS-X") return RouterIcon;
+    else if (feature === "S-DD1") return ZipIcon;
+    else if (feature === "S-RTC") return ClockIcon;
+    else if (feature === "SA1") return ProcessorIcon;
+    else if (feature === "SPC7110") return ZipIcon;
+    else if (feature === "ST-010/011") return AiIcon;
+    else if (feature === "ST-018") return AiIcon;
+    else return HelpIcon;
+  });
+
+  return (
+    <>
+      {icons.map((Icon, index) => (
+        <Icon key={index} />
+      ))}
+    </>
+  );
+}
 
 export default function SnesHeaderEditor(props: {}) {
   const [field, setField] = useState<Field>(Field.None);
@@ -177,6 +239,25 @@ export default function SnesHeaderEditor(props: {}) {
         onCancel={closeField}
         onSubmit={(value) => {
           header.ramCode = value;
+
+          context.updateBuffer();
+          closeField();
+        }}
+      />
+      <HeaderEntry
+        label="Cartidge Features"
+        onEdit={setFieldTo(Field.Features)}
+      >
+        <CartridgeFeatures code={header.featureCode} />
+      </HeaderEntry>
+      <ChoiceDialog
+        title="Edit Cartridge Features"
+        open={field === Field.Features}
+        value={header.featureCode}
+        optionMap={featureCodeLabelMap}
+        onCancel={closeField}
+        onSubmit={(value) => {
+          header.featureCode = value;
 
           context.updateBuffer();
           closeField();
