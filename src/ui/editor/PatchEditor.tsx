@@ -5,29 +5,30 @@ import { Buffer } from "buffer";
 
 import AppContext from "../../AppData";
 import { useUploads } from "../../file";
-
-import IpsPatch from "../../rom/IpsPatch";
+import { Patch, fileToPatch } from "../../rom/utils";
 
 import PatchCard from "../component/PatchCard";
 
 export default function PatchEditor(props: {}) {
   const context = useContext(AppContext);
-  const [patches, setPatches] = useState<Array<IpsPatch>>([]);
+  const [patches, setPatches] = useState<Array<Patch>>([]);
 
   const triggerUpload = useUploads(
     (files: File[]) => {
       files.forEach((file, index) => {
         file.arrayBuffer().then((arrayBuffer) => {
-          const patch = new IpsPatch(Buffer.from(arrayBuffer), file.name);
-          setPatches((patchesOld: Array<IpsPatch>) => {
-            const patchesNew = patchesOld.slice(0);
-            patchesNew.push(patch);
-            return patchesNew;
-          });
+          const patch = fileToPatch(Buffer.from(arrayBuffer), file.name);
+          if (patch !== undefined) {
+            setPatches((patchesOld: Array<Patch>) => {
+              const patchesNew = patchesOld.slice(0);
+              patchesNew.push(patch);
+              return patchesNew;
+            });
+          }
         });
       });
     },
-    [".ips"]
+    [".ips", ".ups"]
   );
 
   const applyPatch = (index: number) => {

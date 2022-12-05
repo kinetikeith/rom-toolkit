@@ -4,6 +4,11 @@ import GbHeader from "./GbHeader";
 import SnesHeader from "./SnesHeader";
 import { RomType } from "../AppData";
 
+import IpsPatch from "./IpsPatch";
+import UpsPatch from "./UpsPatch";
+
+export type Patch = IpsPatch | UpsPatch;
+
 export function detectRomType(buffer: Buffer): RomType {
   const gbHeader = GbHeader.fromRom(buffer);
   if (gbHeader.logo.isValid) return RomType.Gb;
@@ -12,6 +17,17 @@ export function detectRomType(buffer: Buffer): RomType {
   if (snesHeader.validity > 0) return RomType.Snes;
 
   return RomType.Generic;
+}
+
+export function fileToPatch(
+  buffer: Buffer,
+  fileName: string
+): Patch | undefined {
+  const ipsPatch = new IpsPatch(buffer, fileName);
+  if (ipsPatch.validityScore > 0) return ipsPatch;
+
+  const upsPatch = new UpsPatch(buffer, fileName);
+  if (upsPatch.validityScore > 0) return upsPatch;
 }
 
 export function trim(value: string, char: string) {

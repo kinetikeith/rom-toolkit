@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import { saveAs } from "file-saver";
 
 import { useTheme } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
@@ -6,7 +7,6 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
-import { useDownload } from "../file";
 import AppContext, { RomType, FileState } from "../AppData";
 import RomOpener from "./RomOpener";
 import GbContent from "./content/GbContent";
@@ -21,7 +21,6 @@ interface PageContentProps {
 
 export default function PageContent(props: PageContentProps) {
   const context = useContext(AppContext);
-  const triggerDownload = useDownload(props.fileName, context.buffer);
 
   let content = null;
   /* Render tab */
@@ -48,7 +47,10 @@ export default function PageContent(props: PageContentProps) {
         <Button
           variant={saveVariant}
           onClick={() => {
-            triggerDownload();
+            const blob = new Blob([context.buffer], {
+              type: "applications/octet-stream",
+            });
+            saveAs(blob, props.fileName);
           }}
         >
           Save
