@@ -11,10 +11,12 @@ const destinationMap: Map<number, string> = keysAsHex(destinations);
 const mapperMap: Map<number, string> = keysAsHex(mappers);
 const featureMap: Map<number, string[]> = keysAsHex(features);
 
-const ramMap = new Map<number, number>(range(16).map((i) => [i, 1024 << i]));
-const romMap = new Map<number, number>(range(20).map((i) => [i, 1024 << i]));
+const ramMap = new Map<number, number>(range(0x08).map((i) => [i, 1024 << i]));
+const romMap = new Map<number, number>(
+  range(0x05, 0x10).map((i) => [i, 1024 << i])
+);
 
-enum SpecialFeature {
+enum Feature {
   Gsu1 = -128,
   Gsu2,
   Gsu1Battery,
@@ -28,29 +30,23 @@ enum SpecialFeature {
   Power,
 }
 
-featureMap.set(SpecialFeature.Gsu1, ["ROM", "RAM", "GSU-1"]);
-featureMap.set(SpecialFeature.Gsu2, ["ROM", "RAM", "GSU-2"]);
-featureMap.set(SpecialFeature.Gsu1Battery, ["ROM", "RAM", "Battery", "GSU-1"]);
-featureMap.set(SpecialFeature.Gsu2Battery, ["ROM", "RAM", "Battery", "GSU-2"]);
-featureMap.set(SpecialFeature.Cx4, ["ROM", "Cx4"]);
-featureMap.set(SpecialFeature.Spc7110, ["ROM", "RAM", "Battery", "SPC7110"]);
-featureMap.set(SpecialFeature.St018, ["ROM", "RAM", "Battery", "STC-018"]);
-featureMap.set(SpecialFeature.St010, ["ROM", "Battery", "ST-010/011"]);
-featureMap.set(SpecialFeature.Spc7110Rtc, [
-  "ROM",
-  "RAM",
-  "Battery",
-  "RTC",
-  "SPC7110",
-]);
-featureMap.set(SpecialFeature.Xband, ["ROM", "RAM", "Battery", "RC2324DPL"]);
-featureMap.set(SpecialFeature.Power, ["ROM", "RAM", "Battery", "MX15001TFC"]);
+featureMap.set(Feature.Gsu1, ["ROM", "RAM", "GSU-1"]);
+featureMap.set(Feature.Gsu2, ["ROM", "RAM", "GSU-2"]);
+featureMap.set(Feature.Gsu1Battery, ["ROM", "RAM", "Battery", "GSU-1"]);
+featureMap.set(Feature.Gsu2Battery, ["ROM", "RAM", "Battery", "GSU-2"]);
+featureMap.set(Feature.Cx4, ["ROM", "Cx4"]);
+featureMap.set(Feature.Spc7110, ["ROM", "RAM", "Battery", "SPC7110"]);
+featureMap.set(Feature.St018, ["ROM", "RAM", "Battery", "STC-018"]);
+featureMap.set(Feature.St010, ["ROM", "Battery", "ST-010/011"]);
+featureMap.set(Feature.Spc7110Rtc, ["ROM", "RAM", "Battery", "RTC", "SPC7110"]);
+featureMap.set(Feature.Xband, ["ROM", "RAM", "Battery", "RC2324DPL"]);
+featureMap.set(Feature.Power, ["ROM", "RAM", "Battery", "MX15001TFC"]);
 
-type FeatureCode = SpecialFeature | number;
+type FeatureCode = Feature | number;
 
 export { destinationMap, ramMap, romMap, mapperMap, featureMap };
 
-function findHeader(buffer: Buffer): [Buffer, number] {
+function findHeader(buffer: Buffer): [Buffer, number, number] {
   const offsets = [0xff00, 0x7f00, 0x40ff00];
 
   const scoreObjs = offsets.map((offset) => ({
@@ -62,18 +58,18 @@ function findHeader(buffer: Buffer): [Buffer, number] {
   const bestOffset = bestScoreObj.offset;
   const headerBuffer = buffer.subarray(bestOffset, bestOffset + 0xe0);
 
-  return [headerBuffer, bestScoreObj.score];
+  return [headerBuffer, bestScoreObj.score, bestOffset];
 }
 
 function calcHeaderOffsetScore(offset: number, buffer: Buffer): number {
   let score = 0;
-  if (buffer.length < offset + 0xde) return -1;
+  if (buffer.length < offset + 0xdf) return -100;
   const romCode = buffer.readUInt8(offset + 0xd7);
   const ramCode = buffer.readUInt8(offset + 0xd8);
 
   // TODO: Add more testing methods
-  if (romCode >= 0x05 && romCode <= 0x0f) score += 1;
-  if (ramCode <= 0x0a) score += 1;
+  if (romCode >= 0x05 && romCode <= 0x0f) score += 2;
+  if (ramCode >= 0x0a) score += 1;
 
   return score;
 }
@@ -81,15 +77,17 @@ function calcHeaderOffsetScore(offset: number, buffer: Buffer): number {
 export default class SnesHeader {
   _buffer: Buffer;
   readonly validity: number;
+  readonly offset: number;
 
-  constructor(buffer: Buffer, validity: number = 0) {
+  constructor(buffer: Buffer, validity: number = 0, offset: number = 0) {
     this._buffer = buffer;
     this.validity = validity;
+    this.offset = offset;
   }
 
   static fromRom(buffer: Buffer): SnesHeader {
-    const [foundBuffer, validity] = findHeader(buffer);
-    return new SnesHeader(foundBuffer, validity);
+    const [foundBuffer, validity, offset] = findHeader(buffer);
+    return new SnesHeader(foundBuffer, validity, offset);
   }
 
   copy(): SnesHeader {
@@ -169,67 +167,66 @@ export default class SnesHeader {
     const gameCode = this.gameCode;
     const rom1mb = this.romCode < 0x0a;
 
-    if (code === 0x14)
-      return rom1mb ? SpecialFeature.Gsu1 : SpecialFeature.Gsu2;
+    if (code === 0x14) return rom1mb ? Feature.Gsu1 : Feature.Gsu2;
     else if (code === 0x15)
-      return rom1mb ? SpecialFeature.Gsu1Battery : SpecialFeature.Gsu2Battery;
+      return rom1mb ? Feature.Gsu1Battery : Feature.Gsu2Battery;
     else if (code === 0xf3) {
-      if (subCode === 0x10) return SpecialFeature.Cx4;
+      if (subCode === 0x10) return Feature.Cx4;
     } else if (code === 0xf5) {
-      if (subCode === 0x00) return SpecialFeature.Spc7110;
-      else if (subCode === 0x02) return SpecialFeature.St018;
+      if (subCode === 0x00) return Feature.Spc7110;
+      else if (subCode === 0x02) return Feature.St018;
     } else if (code === 0xf6) {
-      if (subCode === 0x01) return SpecialFeature.St010;
+      if (subCode === 0x01) return Feature.St010;
     } else if (code === 0xf9) {
-      if (subCode === 0x00) return SpecialFeature.Spc7110Rtc;
-    } else if (gameCode === "XBND") return SpecialFeature.Xband;
-    else if (gameCode === "MENU") return SpecialFeature.Power;
+      if (subCode === 0x00) return Feature.Spc7110Rtc;
+    } else if (gameCode === "XBND") return Feature.Xband;
+    else if (gameCode === "MENU") return Feature.Power;
 
     return code;
   }
   set featureCode(value: FeatureCode) {
     switch (value) {
-      case SpecialFeature.Gsu1:
-      case SpecialFeature.Gsu2:
+      case Feature.Gsu1:
+      case Feature.Gsu2:
         this.cartridgeCode = 0x14;
         this.clearSpecialGameCode();
         break;
-      case SpecialFeature.Gsu1Battery:
-      case SpecialFeature.Gsu2Battery:
+      case Feature.Gsu1Battery:
+      case Feature.Gsu2Battery:
         this.cartridgeCode = 0x15;
         this.clearSpecialGameCode();
         break;
-      case SpecialFeature.Cx4:
+      case Feature.Cx4:
         this.cartridgeCode = 0xf3;
         this.cartridgeSubCode = 0x10;
         this.clearSpecialGameCode();
         break;
-      case SpecialFeature.Spc7110:
+      case Feature.Spc7110:
         this.cartridgeCode = 0xf5;
         this.cartridgeSubCode = 0x00;
         this.clearSpecialGameCode();
         break;
-      case SpecialFeature.St018:
+      case Feature.St018:
         this.cartridgeCode = 0xf5;
         this.cartridgeSubCode = 0x02;
         this.clearSpecialGameCode();
         break;
-      case SpecialFeature.St010:
+      case Feature.St010:
         this.cartridgeCode = 0xf6;
         this.cartridgeSubCode = 0x01;
         this.clearSpecialGameCode();
         break;
-      case SpecialFeature.Spc7110Rtc:
+      case Feature.Spc7110Rtc:
         this.cartridgeCode = 0xf9;
         this.cartridgeSubCode = 0x00;
         this.clearSpecialGameCode();
         break;
-      case SpecialFeature.Xband:
+      case Feature.Xband:
         this.gameCode = "XBND";
         this.cartridgeCode = 0x02;
         this.cartridgeSubCode = 0x00;
         break;
-      case SpecialFeature.Power:
+      case Feature.Power:
         this.gameCode = "MENU";
         this.cartridgeCode = 0x02;
         this.cartridgeSubCode = 0x00;

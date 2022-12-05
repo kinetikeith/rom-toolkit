@@ -146,6 +146,7 @@ export default function SnesHeaderEditor(props: {}) {
           closeField();
         }}
       />
+      <HeaderEntry label="Location">{asHex(header.offset, 6)}</HeaderEntry>
       <HeaderDivider>Licensing</HeaderDivider>
       <HeaderEntry label="Maker Code" onEdit={setFieldTo(Field.MakerCode)}>
         {header.makerCode}
