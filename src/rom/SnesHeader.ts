@@ -66,10 +66,12 @@ function calcHeaderOffsetScore(offset: number, buffer: Buffer): number {
   if (buffer.length < offset + 0xdf) return -100;
   const romCode = buffer.readUInt8(offset + 0xd7);
   const ramCode = buffer.readUInt8(offset + 0xd8);
+  const version = buffer.readUInt8(offset + 0xdb);
 
   // TODO: Add more testing methods
-  if (romCode >= 0x05 && romCode <= 0x0f) score += 2;
-  if (ramCode >= 0x0a) score += 1;
+  if (romCode >= 0x05 && romCode < 0x10) score += 2;
+  if (ramCode < 0x08) score += 1;
+  if (version > 10) score -= 2;
 
   return score;
 }
