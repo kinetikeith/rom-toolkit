@@ -67,7 +67,7 @@ export default class GbHeader {
   get _logoBuffer() {
     return this._buffer.subarray(0x04, 0x34);
   }
-  get logo() {
+  get logo(): GbLogo {
     return new GbLogo(this._logoBuffer);
   }
   set logo(logo: GbLogo) {
