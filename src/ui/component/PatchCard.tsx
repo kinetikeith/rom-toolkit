@@ -1,7 +1,14 @@
+import { useState } from "react";
+
+import { styled } from "@mui/material/styles";
 import Card from "@mui/material/Card";
+import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
 import CardActions from "@mui/material/CardActions";
-import Typography from "@mui/material/Typography";
+import Collapse from "@mui/material/Collapse";
+import IconButton, { IconButtonProps } from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Button from "@mui/material/Button";
 
 import { asBytes } from "../format";
@@ -9,13 +16,24 @@ import IpsPatch from "../../rom/IpsPatch";
 import UpsPatch from "../../rom/UpsPatch";
 import LabeledValue from "./LabeledValue";
 
+interface ExpandMoreProps extends IconButtonProps {
+  expand: boolean;
+}
+
+const ExpandMore = styled((props: ExpandMoreProps) => {
+  const { expand, ...other } = props;
+  return <IconButton {...other} />;
+})(({ theme, expand }) => ({
+  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
+  marginLeft: "auto",
+  transition: theme.transitions.create("transform", {
+    duration: theme.transitions.duration.shortest,
+  }),
+}));
+
 function IpsContent(props: { value: IpsPatch }) {
   return (
     <>
-      <Typography variant="h6">IPS Patch</Typography>
-      <LabeledValue label="Name" space={5}>
-        {props.value.fileName}
-      </LabeledValue>
       <LabeledValue label="Blocks" space={5}>
         {props.value.chunks.length}
       </LabeledValue>
@@ -32,10 +50,6 @@ function IpsContent(props: { value: IpsPatch }) {
 function UpsContent(props: { value: UpsPatch }) {
   return (
     <>
-      <Typography variant="h6">UPS Patch</Typography>
-      <LabeledValue label="Name" space={5}>
-        {props.value.fileName}
-      </LabeledValue>
       <LabeledValue label="Input File Size" space={3}>
         {asBytes(props.value.inputSize)}
       </LabeledValue>
@@ -52,21 +66,45 @@ function UpsContent(props: { value: UpsPatch }) {
 export default function PatchCard(props: {
   value: IpsPatch | UpsPatch;
   onApply: () => void;
+  onCancel: () => void;
 }) {
+  const [expanded, setExpanded] = useState<boolean>(false);
+
   let content = null;
-  if (props.value instanceof IpsPatch)
+  let typeLabel = "";
+  if (props.value instanceof IpsPatch) {
     content = <IpsContent value={props.value} />;
-  else if (props.value instanceof UpsPatch)
+    typeLabel = "IPS Patch";
+  } else if (props.value instanceof UpsPatch) {
     content = <UpsContent value={props.value} />;
+    typeLabel = "UPS Patch";
+  }
 
   return (
     <Card variant="outlined">
-      <CardContent>{content}</CardContent>
-      <CardActions>
+      <CardHeader
+        title={typeLabel}
+        subheader={props.value.fileName}
+        action={
+          <IconButton onClick={props.onCancel}>
+            <CloseIcon />
+          </IconButton>
+        }
+      />
+      <CardActions disableSpacing>
         <Button onClick={props.onApply} variant="contained">
           Apply
         </Button>
+        <ExpandMore
+          expand={expanded}
+          onClick={() => setExpanded((expandedOld) => !expandedOld)}
+        >
+          <ExpandMoreIcon />
+        </ExpandMore>
       </CardActions>
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <CardContent>{content}</CardContent>
+      </Collapse>
     </Card>
   );
 }

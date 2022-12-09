@@ -31,13 +31,17 @@ export default function PatchEditor(props: {}) {
     [".ips", ".ups"]
   );
 
-  const applyPatch = (index: number) => {
-    const patch = patches[index];
-    patch.applyTo(context.buffer);
+  const removePatch = (index: number) => {
     setPatches((patchesOld) => {
       patchesOld.splice(index, 1);
       return patchesOld.slice(0);
     });
+  };
+
+  const applyPatch = (index: number) => {
+    const patch = patches[index];
+    patch.applyTo(context.buffer);
+    removePatch(index);
     context.updateBuffer();
   };
 
@@ -49,6 +53,7 @@ export default function PatchEditor(props: {}) {
             value={patch}
             key={index}
             onApply={() => applyPatch(index)}
+            onCancel={() => removePatch(index)}
           />
         ))}
         <Button variant="contained" color="secondary" onClick={triggerUpload}>
