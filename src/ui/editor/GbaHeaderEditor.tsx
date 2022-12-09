@@ -16,6 +16,7 @@ export default function GbaHeaderEditor(props: {}) {
       <HeaderDivider>General</HeaderDivider>
       <HeaderEntry label="Title">{header.title}</HeaderEntry>
       <HeaderEntry label="Game Code">{header.gameCode}</HeaderEntry>
+      <HeaderEntry label="Maker Code">{header.makerCode}</HeaderEntry>
       <HeaderEntry label="Version">{header.version}</HeaderEntry>
       <HeaderDivider>Checksum</HeaderDivider>
       <HeaderEntry label="Header Checksum">
