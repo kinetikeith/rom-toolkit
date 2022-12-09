@@ -2,6 +2,7 @@ import { Buffer } from "buffer";
 
 import GbHeader from "./GbHeader";
 import SnesHeader from "./SnesHeader";
+import GbaHeader from "./GbaHeader";
 import { RomType } from "../AppData";
 
 import IpsPatch from "./IpsPatch";
@@ -15,6 +16,9 @@ export function detectRomType(buffer: Buffer): RomType {
 
   const snesHeader = SnesHeader.fromRom(buffer);
   if (snesHeader.validity > 0) return RomType.Snes;
+
+  const gbaHeader = GbaHeader.fromRom(buffer);
+  if (gbaHeader.validity > 0) return RomType.Gba;
 
   return RomType.Generic;
 }

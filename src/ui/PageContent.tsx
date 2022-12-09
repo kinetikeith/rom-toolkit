@@ -10,6 +10,7 @@ import Box from "@mui/material/Box";
 import AppContext, { RomType, FileState } from "../AppData";
 import RomOpener from "./RomOpener";
 import GbContent from "./content/GbContent";
+import GbaContent from "./content/GbaContent";
 import SnesContent from "./content/SnesContent";
 import GenericContent from "./content/GenericContent";
 
@@ -33,6 +34,9 @@ export default function PageContent(props: PageContentProps) {
         break;
       case RomType.Snes:
         editorContent = <SnesContent />;
+        break;
+      case RomType.Gba:
+        editorContent = <GbaContent />;
         break;
       case RomType.Generic:
         editorContent = <GenericContent />;
