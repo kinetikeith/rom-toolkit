@@ -1,9 +1,9 @@
 import { ReactNode } from "react";
 
 import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
-import Divider from "@mui/material/Divider";
 
 export function Panel(props: { show: boolean; children: ReactNode }) {
   return (
@@ -21,7 +21,7 @@ interface NavbarProps<T> {
 
 export function Navbar<T>(props: NavbarProps<T>) {
   return (
-    <Box sx={{ width: "100%" }}>
+    <Container>
       <Tabs
         value={props.mode}
         centered
@@ -29,11 +29,10 @@ export function Navbar<T>(props: NavbarProps<T>) {
           props.setMode(value);
         }}
       >
-        {[...props.modeLabels].map(([mode, label]) => (
-          <Tab label={label} value={mode} key={label} />
+        {[...props.modeLabels].map(([mode, label], index) => (
+          <Tab label={label} value={mode} key={index} />
         ))}
       </Tabs>
-      <Divider variant="middle" />
-    </Box>
+    </Container>
   );
 }
