@@ -40,9 +40,9 @@ export default function PatchEditor(props: {}) {
 
   const applyPatch = (index: number) => {
     const patch = patches[index];
-    patch.applyTo(context.buffer);
+    const buffer = patch.applyTo(context.buffer);
     removePatch(index);
-    context.updateBuffer();
+    context.updateBuffer(buffer);
   };
 
   return (
