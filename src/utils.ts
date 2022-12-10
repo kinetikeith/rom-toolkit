@@ -12,3 +12,9 @@ export function range(
     (_, i) => start + i * step
   );
 }
+
+export function parsePath(path: string) {
+  return {
+    ext: path.match(/\.[0-9a-z]+$/i)?.[0] || "",
+  };
+}

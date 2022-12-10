@@ -20,6 +20,7 @@ export enum FileState {
 interface AppContextType {
   romType: RomType;
   setFile: (file: File) => Promise<void>;
+  getFile: () => Promise<File>;
 
   buffer: Buffer;
   updateBuffer: (arg?: UpdateArg<Buffer>) => void;
@@ -28,6 +29,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType>({
   romType: RomType.Generic,
   setFile: async () => {},
+  getFile: async () => new File([], ""),
 
   buffer: Buffer.alloc(0),
   updateBuffer: () => {},

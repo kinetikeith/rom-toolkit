@@ -10,7 +10,7 @@ import UpsPatch from "./UpsPatch";
 
 export type Patch = IpsPatch | UpsPatch;
 
-export function detectRomType(buffer: Buffer): RomType {
+export function detectRomType(buffer: Buffer, ext: string): RomType {
   const gbHeader = GbHeader.fromRom(buffer);
   if (gbHeader.logo.isValid) return RomType.Gb;
 

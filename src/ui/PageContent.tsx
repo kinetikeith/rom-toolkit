@@ -15,7 +15,6 @@ import SnesContent from "./content/SnesContent";
 import GenericContent from "./content/GenericContent";
 
 interface PageContentProps {
-  fileName: string;
   fileState: FileState;
   resetBuffer: () => any;
 }
@@ -51,10 +50,9 @@ export default function PageContent(props: PageContentProps) {
         <Button
           variant={saveVariant}
           onClick={() => {
-            const blob = new Blob([context.buffer], {
-              type: "applications/octet-stream",
+            context.getFile().then((file) => {
+              saveAs(file);
             });
-            saveAs(blob, props.fileName);
           }}
         >
           Save
