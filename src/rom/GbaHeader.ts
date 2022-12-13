@@ -2,6 +2,14 @@ import { Buffer } from "buffer";
 
 import { trimNull, padNull } from "./utils";
 
+import destinations from "./data/gbaDestinations.json";
+
+const destinationMap = new Map<string, string>([
+  ...Object.entries(destinations),
+]);
+
+export { destinationMap };
+
 class GbaLogo {
   _buffer: Buffer;
   constructor(buffer: Buffer) {
@@ -49,6 +57,27 @@ export default class GbaHeader {
   }
   set gameCode(value: string) {
     this._buffer.write(padNull(value, 4), 0xac, 4, "ascii");
+  }
+
+  get hardwareCode(): string {
+    return this._buffer.toString("ascii", 0xac, 0xad);
+  }
+  set hardwareCode(value: string) {
+    this._buffer.write(value, 0xac, 1, "ascii");
+  }
+
+  get titleCode(): string {
+    return this._buffer.toString("ascii", 0xad, 0xaf);
+  }
+  set titleCode(value: string) {
+    this._buffer.write(padNull(value, 2), 0xad, 2, "ascii");
+  }
+
+  get destinationCode(): string {
+    return this._buffer.toString("ascii", 0xaf, 0xb0);
+  }
+  set destinationCode(value: string) {
+    this._buffer.write(value, 0xaf, 1, "ascii");
   }
 
   get makerCode(): string {
