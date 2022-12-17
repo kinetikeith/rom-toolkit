@@ -20,7 +20,7 @@ export default function RomOpener(props: {}) {
         setLoading(false);
       });
     },
-    [".gb", ".gbc", ".gba", ".sfc", ".zip"]
+    [".gb", ".gbc", ".gba", ".nes", ".sfc", ".zip"]
   );
 
   return (

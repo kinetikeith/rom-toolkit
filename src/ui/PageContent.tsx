@@ -11,6 +11,7 @@ import AppContext, { RomType, FileState } from "../AppData";
 import RomOpener from "./RomOpener";
 import GbContent from "./content/GbContent";
 import GbaContent from "./content/GbaContent";
+import NesContent from "./content/NesContent";
 import SnesContent from "./content/SnesContent";
 import GenericContent from "./content/GenericContent";
 
@@ -31,11 +32,14 @@ export default function PageContent(props: PageContentProps) {
       case RomType.Gb:
         editorContent = <GbContent />;
         break;
-      case RomType.Snes:
-        editorContent = <SnesContent />;
-        break;
       case RomType.Gba:
         editorContent = <GbaContent />;
+        break;
+      case RomType.Nes:
+        editorContent = <NesContent />;
+        break;
+      case RomType.Snes:
+        editorContent = <SnesContent />;
         break;
       case RomType.Generic:
         editorContent = <GenericContent />;
