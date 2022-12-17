@@ -31,6 +31,18 @@ export default class GbaHeader {
     let score = 0;
     if (this._buffer.readUInt16BE(0xbe) === 0x0000) score += 2;
 
+    const title = this.title;
+    const titleMatch = title.match(/\w+/);
+    if (titleMatch?.[0] === title) {
+      score += 2;
+    } else score -= 1;
+
+    const gameCode = this.gameCode;
+    const gameCodeMatch = gameCode.match(/\w+/);
+    if (gameCodeMatch?.[0] === gameCode) {
+      score += 2;
+    } else score -= 1;
+
     return score;
   }
 

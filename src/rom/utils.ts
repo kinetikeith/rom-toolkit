@@ -1,8 +1,10 @@
 import { Buffer } from "buffer";
 
+import { sortBy } from "lodash";
+
 import GbHeader from "./GbHeader";
-import SnesHeader from "./SnesHeader";
 import GbaHeader from "./GbaHeader";
+import SnesHeader from "./SnesHeader";
 import { RomType } from "../AppData";
 
 import IpsPatch from "./IpsPatch";
@@ -11,14 +13,31 @@ import UpsPatch from "./UpsPatch";
 export type Patch = IpsPatch | UpsPatch;
 
 export function detectRomType(buffer: Buffer, ext: string): RomType {
-  const gbHeader = GbHeader.fromRom(buffer);
-  if (gbHeader.logo.isValid) return RomType.Gb;
+  const headers = [
+    {
+      validity: GbHeader.fromRom(buffer).validity,
+      type: RomType.Gb,
+      ext: [".gb", ".gbc"],
+    },
+    {
+      validity: GbaHeader.fromRom(buffer).validity,
+      type: RomType.Gba,
+      ext: [".gba"],
+    },
+    {
+      validity: SnesHeader.fromRom(buffer).validity,
+      type: RomType.Snes,
+      ext: [".sfc"],
+    },
+  ];
 
-  const snesHeader = SnesHeader.fromRom(buffer);
-  if (snesHeader.validity > 0) return RomType.Snes;
+  const bestHeader = sortBy(
+    headers,
+    (header) => header.validity + (header.ext.includes(ext) ? 2 : -2)
+  ).pop();
 
-  const gbaHeader = GbaHeader.fromRom(buffer);
-  if (gbaHeader.validity > 0) return RomType.Gba;
+  if (bestHeader === undefined) return RomType.Generic;
+  else if (bestHeader.validity > 0) return bestHeader.type;
 
   return RomType.Generic;
 }
@@ -50,6 +69,11 @@ export function trimSpace(value: string) {
 
 export function padNull(value: string, n: number) {
   return value.padEnd(n, "\x00");
+}
+
+// https://stackoverflow.com/a/64808910
+export function mod(n: number, m: number): number {
+  return ((n % m) + m) % m;
 }
 
 export function keysAsHex<T>(obj: { [key: string]: T }) {

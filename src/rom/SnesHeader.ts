@@ -78,22 +78,30 @@ function calcHeaderOffsetScore(offset: number, buffer: Buffer): number {
 
 export default class SnesHeader {
   _buffer: Buffer;
-  readonly validity: number;
   readonly offset: number;
+  readonly offsetScore: number;
 
-  constructor(buffer: Buffer, validity: number = 0, offset: number = 0) {
+  constructor(buffer: Buffer, offsetScore: number = 0, offset: number = 0) {
     this._buffer = buffer;
-    this.validity = validity;
+    this.offsetScore = offsetScore;
     this.offset = offset;
   }
 
   static fromRom(buffer: Buffer): SnesHeader {
-    const [foundBuffer, validity, offset] = findHeader(buffer);
-    return new SnesHeader(foundBuffer, validity, offset);
+    const [foundBuffer, offsetScore, offset] = findHeader(buffer);
+    return new SnesHeader(foundBuffer, offsetScore, offset);
   }
 
   copy(): SnesHeader {
-    return new SnesHeader(this._buffer, this.validity);
+    return new SnesHeader(this._buffer, this.offsetScore);
+  }
+
+  get validity(): number {
+    let score = 0;
+
+    score += this.offsetScore;
+
+    return score;
   }
 
   get makerCode(): string {

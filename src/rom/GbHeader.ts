@@ -1,6 +1,6 @@
 import { Buffer } from "buffer";
 
-import { trimNull, padNull, keysAsHex } from "./utils";
+import { trimNull, padNull, keysAsHex, mod } from "./utils";
 import { range } from "../utils";
 import GbLogo from "./GbLogo";
 
@@ -45,11 +45,6 @@ export {
   featureMap,
 };
 
-// https://stackoverflow.com/a/64808910
-function mod(n: number, m: number): number {
-  return ((n % m) + m) % m;
-}
-
 export default class GbHeader {
   _buffer: Buffer;
   constructor(buffer: Buffer) {
@@ -62,6 +57,14 @@ export default class GbHeader {
 
   copy(): GbHeader {
     return new GbHeader(this._buffer);
+  }
+
+  get validity(): number {
+    let score = 0;
+
+    if (this.logo.isValid) score += 4;
+
+    return score;
   }
 
   get _logoBuffer() {
