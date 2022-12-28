@@ -2,14 +2,7 @@ import { createContext } from "react";
 import { Buffer } from "buffer";
 
 import { UpdateArg } from "./wrap";
-
-export enum RomType {
-  Generic,
-  Gb,
-  Gba,
-  Nes,
-  Snes,
-}
+import { RomType } from "./rom/utils";
 
 export enum FileState {
   Missing,

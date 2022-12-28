@@ -7,8 +7,8 @@ import { loadAsync as loadZipAsync } from "jszip";
 
 import { useWrap, UpdateArg } from "./wrap";
 import { parsePath } from "./utils";
-import AppContext, { RomType, FileState } from "./AppData";
-import { detectRomType } from "./rom/utils";
+import AppContext, { FileState } from "./AppData";
+import { detectRomType, RomType } from "./rom/utils";
 
 import PageHeader from "./ui/PageHeader";
 import PageContent from "./ui/PageContent";

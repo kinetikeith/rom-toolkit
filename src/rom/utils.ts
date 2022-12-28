@@ -6,12 +6,19 @@ import GbHeader from "./GbHeader";
 import GbaHeader from "./GbaHeader";
 import NesHeader from "./NesHeader";
 import SnesHeader from "./SnesHeader";
-import { RomType } from "../AppData";
 
 import IpsPatch from "./IpsPatch";
 import UpsPatch from "./UpsPatch";
 
 export type Patch = IpsPatch | UpsPatch;
+
+export enum RomType {
+  Generic,
+  Gb,
+  Gba,
+  Nes,
+  Snes,
+}
 
 export function detectRomType(buffer: Buffer, ext: string): RomType {
   const headers = [
@@ -80,6 +87,18 @@ export function padNull(value: string, n: number) {
 // https://stackoverflow.com/a/64808910
 export function mod(n: number, m: number): number {
   return ((n % m) + m) % m;
+}
+
+export function range(
+  a: number,
+  b: number | undefined = undefined,
+  step: number = 1
+) {
+  const start = b === undefined ? 0 : a;
+  const stop = b === undefined ? a : b;
+  return Array.from({ length: Math.ceil((stop - start) / step) }).map(
+    (_, i) => start + i * step
+  );
 }
 
 export function keysAsHex<T>(obj: { [key: string]: T }) {

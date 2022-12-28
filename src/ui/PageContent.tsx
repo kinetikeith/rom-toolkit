@@ -7,13 +7,15 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
-import AppContext, { RomType, FileState } from "../AppData";
+import AppContext, { FileState } from "../AppData";
 import RomOpener from "./RomOpener";
 import GbContent from "./content/GbContent";
 import GbaContent from "./content/GbaContent";
 import NesContent from "./content/NesContent";
 import SnesContent from "./content/SnesContent";
 import GenericContent from "./content/GenericContent";
+
+import { RomType } from "../rom/utils";
 
 interface PageContentProps {
   fileState: FileState;

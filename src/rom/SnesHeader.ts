@@ -1,15 +1,14 @@
 import { Buffer } from "buffer";
 
-import { trimNull, padNull, keysAsHex } from "./utils";
-import { range } from "../utils";
+import { trimNull, padNull, keysAsHex, range } from "./utils";
 
 import destinations from "./data/snesDestinations.json";
 import mappers from "./data/snesMappers.json";
 import features from "./data/snesFeatures.json";
 
-const destinationMap: Map<number, string> = keysAsHex(destinations);
-const mapperMap: Map<number, string> = keysAsHex(mappers);
-const featureMap: Map<number, string[]> = keysAsHex(features);
+const destinationMap: Map<number, string> = keysAsHex<string>(destinations);
+const mapperMap: Map<number, string> = keysAsHex<string>(mappers);
+const featureMap: Map<number, string[]> = keysAsHex<string[]>(features);
 
 const ramMap = new Map<number, number>(range(0x08).map((i) => [i, 1024 << i]));
 const romMap = new Map<number, number>(

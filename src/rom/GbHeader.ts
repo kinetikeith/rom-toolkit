@@ -1,7 +1,6 @@
 import { Buffer } from "buffer";
 
-import { trimNull, padNull, keysAsHex, mod } from "./utils";
-import { range } from "../utils";
+import { trimNull, padNull, keysAsHex, mod, range } from "./utils";
 import GbLogo from "./GbLogo";
 
 import licenseesOld from "./data/gbLicenseesOld.json";
