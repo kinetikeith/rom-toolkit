@@ -5,10 +5,7 @@ export function asHexRaw(
   if (value === undefined) return undefined;
   if (Number.isNaN(value)) return undefined;
 
-  const maxValue = 1 << (width * 4);
-  const strValue = (value & (maxValue - 1)).toString(16);
-
-  return strValue.toUpperCase().padStart(width, "0");
+  return value.toString(16).slice(-width).toUpperCase().padStart(width, "0");
 }
 
 export function asHex(value: number | undefined, width: number = 2) {

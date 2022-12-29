@@ -17,6 +17,7 @@ interface AppContextType {
 
   buffer: Buffer;
   updateBuffer: (arg?: UpdateArg<Buffer>) => void;
+  bufferChecksum: number;
 }
 
 const AppContext = createContext<AppContextType>({
@@ -26,6 +27,7 @@ const AppContext = createContext<AppContextType>({
 
   buffer: Buffer.alloc(0),
   updateBuffer: () => {},
+  bufferChecksum: 0,
 });
 
 export default AppContext;

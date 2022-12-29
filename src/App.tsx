@@ -4,6 +4,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
 import { Buffer } from "buffer";
 import { loadAsync as loadZipAsync } from "jszip";
+import crc32 from "crc/crc32";
 
 import { useWrap, UpdateArg } from "./wrap";
 import { parsePath } from "./utils";
@@ -46,10 +47,12 @@ export default function App(props: {}) {
   });
   const [fileState, setFileState] = useState<FileState>(FileState.Missing);
   const [buffer, setBuffer] = useWrap<Buffer>(Buffer.alloc(0));
+  const [bufferChecksum, setBufferChecksum] = useState<number>(0);
 
   const updateBuffer = (value?: UpdateArg<Buffer>) => {
     setFileState(FileState.Modified);
-    setBuffer(value);
+    const newBuffer = setBuffer(value);
+    setBufferChecksum(crc32(newBuffer));
   };
 
   const setFile = async (file: File) => {
@@ -87,7 +90,7 @@ export default function App(props: {}) {
       zipName: zipName,
       romType: detectRomType(newBuffer, ext),
     });
-    setBuffer(newBuffer);
+    updateBuffer(newBuffer);
     setFileState(FileState.Opened);
   };
 
@@ -119,6 +122,8 @@ export default function App(props: {}) {
             getFile: getFile,
             buffer: buffer,
             updateBuffer: updateBuffer,
+
+            bufferChecksum: bufferChecksum,
           }}
         >
           <Stack direction="column" alignItems="center" sx={{ height: "100%" }}>

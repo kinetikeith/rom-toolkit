@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 
 import { styled } from "@mui/material/styles";
 import Card from "@mui/material/Card";
@@ -11,7 +11,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Button from "@mui/material/Button";
 
-import { asBytes } from "../format";
+import AppContext from "../../AppData";
+import { asBytes, asHex } from "../format";
 import IpsPatch from "../../rom/IpsPatch";
 import UpsPatch from "../../rom/UpsPatch";
 import LabeledValue from "./LabeledValue";
@@ -48,13 +49,40 @@ function IpsContent(props: { value: IpsPatch }) {
 }
 
 function UpsContent(props: { value: UpsPatch }) {
+  const context = useContext(AppContext);
+
+  const patchCheck = props.value.patchChecksum;
+  const isPatchValid = patchCheck === props.value.patchChecksumCalc;
+  const patchCheckColor = isPatchValid ? "success.dark" : "error.dark";
+
+  const inputCheck = props.value.inputChecksum;
+  const isInputCheckValid = inputCheck === context.bufferChecksum;
+  const inputCheckColor = isInputCheckValid ? "success.dark" : "error.dark";
+
   return (
     <>
+      <LabeledValue
+        label="Patch Checksum"
+        space={2}
+        valueColor={patchCheckColor}
+      >
+        {asHex(props.value.patchChecksum, 8)}
+      </LabeledValue>
       <LabeledValue label="Input File Size" space={3}>
         {asBytes(props.value.inputSize)}
       </LabeledValue>
+      <LabeledValue
+        label="Input File Checksum"
+        space={2}
+        valueColor={inputCheckColor}
+      >
+        {asHex(props.value.inputChecksum, 8)}
+      </LabeledValue>
       <LabeledValue label="Output File Size" space={3}>
         {asBytes(props.value.outputSize)}
+      </LabeledValue>
+      <LabeledValue label="Ouput File Checksum" space={2}>
+        {asHex(props.value.outputChecksum, 8)}
       </LabeledValue>
       <LabeledValue label="Blocks" space={3}>
         {props.value.chunks.length}

@@ -1,4 +1,5 @@
 import { Buffer } from "buffer";
+import crc32 from "crc/crc32";
 
 interface Chunk {
   offset: number;
@@ -58,6 +59,19 @@ export default class UpsPatch {
   get outputSize() {
     const [, outputSize] = this.fileSizes;
     return outputSize;
+  }
+
+  get inputChecksum(): number {
+    return this._buffer.readUInt32LE(this._buffer.length - 12);
+  }
+  get outputChecksum(): number {
+    return this._buffer.readUInt32LE(this._buffer.length - 8);
+  }
+  get patchChecksum(): number {
+    return this._buffer.readUInt32LE(this._buffer.length - 4);
+  }
+  get patchChecksumCalc(): number {
+    return crc32(this._buffer.subarray(0, this._buffer.length - 4));
   }
 
   *getChunks(): Iterable<Chunk> {

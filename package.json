@@ -19,6 +19,7 @@
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
     "buffer": "^6.0.3",
+    "crc": "^4.2.0",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",

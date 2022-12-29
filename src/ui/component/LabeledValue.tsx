@@ -17,6 +17,7 @@ interface LabeledValueProps {
   label: string;
   children: ReactNode;
   space: any;
+  valueColor?: string;
 }
 
 export default function LabeledValue(props: LabeledValueProps) {
@@ -24,7 +25,7 @@ export default function LabeledValue(props: LabeledValueProps) {
     <Stack direction="row" justifyContent="space-between" alignItems="center">
       <Typography>{props.label}</Typography>
       <Spacer size={props.space} />
-      <Monospace>{props.children}</Monospace>
+      <Monospace color={props.valueColor}>{props.children}</Monospace>
     </Stack>
   );
 }
