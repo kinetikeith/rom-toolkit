@@ -7,6 +7,33 @@ interface Chunk {
   buffer: Buffer;
 }
 
+enum UpsError {
+  InvalidPatchChecksum,
+  InvalidInputChecksum,
+  InvalidInputSize,
+  InvalidOutputChecksum,
+  WritePastEof,
+}
+
+type UpsErrorHandler = (err: UpsError) => boolean | void;
+
+const upsErrHandler = (err: UpsError) => {
+  switch (err) {
+    case UpsError.InvalidInputChecksum:
+      console.warn("Input file has wrong checksum");
+      break;
+    case UpsError.InvalidInputSize:
+      console.warn("Input file has wrong size");
+      break;
+    case UpsError.InvalidOutputChecksum:
+      console.warn("Output file has wrong checksum");
+      break;
+    case UpsError.WritePastEof:
+      console.warn("Attempted to write past end of output file");
+      break;
+  }
+};
+
 function readVUInt(buffer: Buffer, offset: number): [number, number] {
   let value = 0,
     shift = 0;
@@ -105,11 +132,24 @@ export default class UpsPatch {
     return Array.from(this.getChunks());
   }
 
-  applyTo(buffer: Buffer): Buffer {
+  applyTo(buffer: Buffer, errFunc: UpsErrorHandler = upsErrHandler): Buffer {
     let resBuffer = buffer;
-    let end = this.outputSize;
+    const end = this.outputSize;
 
-    if (end > buffer.length) {
+    if (this.patchChecksum !== this.patchChecksumCalc) {
+      if (errFunc(UpsError.InvalidPatchChecksum)) return resBuffer;
+    }
+
+    if (this.inputSize !== buffer.length) {
+      if (errFunc(UpsError.InvalidInputSize)) return resBuffer;
+    }
+
+    const inputChecksumCalc = crc32(buffer);
+    if (this.inputChecksum !== inputChecksumCalc) {
+      if (errFunc(UpsError.InvalidInputChecksum)) return resBuffer;
+    }
+
+    if (end !== buffer.length) {
       resBuffer = Buffer.alloc(end);
       buffer.copy(resBuffer);
     }
@@ -117,10 +157,19 @@ export default class UpsPatch {
     for (const chunk of this.chunks) {
       for (let i = 0; i < chunk.length; i++) {
         const writeOffset = chunk.offset + i;
+        if (writeOffset >= end) {
+          if (errFunc(UpsError.WritePastEof)) return resBuffer;
+          break;
+        }
         const inByte = resBuffer.readUInt8(writeOffset);
         const xorByte = chunk.buffer.readUInt8(i);
         resBuffer.writeUInt8(inByte ^ xorByte, writeOffset);
       }
+    }
+
+    const outputChecksumCalc = crc32(resBuffer);
+    if (this.outputChecksum !== outputChecksumCalc) {
+      if (errFunc(UpsError.InvalidOutputChecksum)) return resBuffer;
     }
 
     return resBuffer;

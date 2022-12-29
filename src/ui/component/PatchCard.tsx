@@ -51,30 +51,38 @@ function IpsContent(props: { value: IpsPatch }) {
 function UpsContent(props: { value: UpsPatch }) {
   const context = useContext(AppContext);
 
+  const success = "success.dark";
+  const error = "error.dark";
+
   const patchCheck = props.value.patchChecksum;
   const isPatchValid = patchCheck === props.value.patchChecksumCalc;
-  const patchCheckColor = isPatchValid ? "success.dark" : "error.dark";
 
   const inputCheck = props.value.inputChecksum;
   const isInputCheckValid = inputCheck === context.bufferChecksum;
-  const inputCheckColor = isInputCheckValid ? "success.dark" : "error.dark";
+
+  const inputSize = props.value.inputSize;
+  const isInputSizeValid = inputSize === context.buffer.length;
 
   return (
     <>
       <LabeledValue
         label="Patch Checksum"
         space={2}
-        valueColor={patchCheckColor}
+        valueColor={isPatchValid ? success : error}
       >
         {asHex(props.value.patchChecksum, 8)}
       </LabeledValue>
-      <LabeledValue label="Input File Size" space={3}>
+      <LabeledValue
+        label="Input File Size"
+        space={3}
+        valueColor={isInputSizeValid ? success : error}
+      >
         {asBytes(props.value.inputSize)}
       </LabeledValue>
       <LabeledValue
         label="Input File Checksum"
         space={2}
-        valueColor={inputCheckColor}
+        valueColor={isInputCheckValid ? success : error}
       >
         {asHex(props.value.inputChecksum, 8)}
       </LabeledValue>
