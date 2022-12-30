@@ -1,33 +1,49 @@
 import { createContext } from "react";
 import { Buffer } from "buffer";
 
-import { UpdateArg } from "./wrap";
 import { RomType } from "./rom/utils";
 
-export enum FileState {
-  Missing,
-  Opened,
-  Modified,
-}
+type BufferUpdateFunc = (oldBuffer: Buffer) => Buffer | void;
+export type BufferUpdateArg = BufferUpdateFunc | Buffer;
 
-interface AppContextType {
-  romType: RomType;
-  setFile: (file: File) => Promise<void>;
-  getFile: () => Promise<File>;
-
+export interface RomContextType {
+  type: RomType;
   buffer: Buffer;
-  updateBuffer: (arg?: UpdateArg<Buffer>) => void;
-  bufferChecksum: number;
+  updateBuffer: (arg?: BufferUpdateArg) => void;
+  isModified: boolean;
+
+  getCrc32: () => number;
+  getMd5: () => string;
+  getSha1: () => string;
 }
 
-const AppContext = createContext<AppContextType>({
-  romType: RomType.Generic,
-  setFile: async () => {},
-  getFile: async () => new File([], ""),
-
+const RomContext = createContext<RomContextType>({
+  type: RomType.Generic,
   buffer: Buffer.alloc(0),
   updateBuffer: () => {},
-  bufferChecksum: 0,
+  isModified: false,
+
+  getCrc32: () => 0,
+  getMd5: () => "",
+  getSha1: () => "",
 });
 
-export default AppContext;
+interface FileContextType {
+  isOpen: boolean;
+  opened: File;
+  setOpened: (file: File) => Promise<void>;
+  resetOpened: () => Promise<void>;
+
+  getEdited: () => Promise<File>;
+}
+
+const FileContext = createContext<FileContextType>({
+  isOpen: false,
+  opened: new File([], ""),
+  setOpened: async () => {},
+  resetOpened: async () => {},
+
+  getEdited: async () => new File([], ""),
+});
+
+export { RomContext, FileContext };

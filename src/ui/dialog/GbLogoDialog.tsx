@@ -1,7 +1,8 @@
+import { useState } from "react";
+
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 
-import { useWrap } from "../../wrap";
 import EditDialog, { ValueDialogProps } from "./EditDialog";
 import GbLogoCanvas from "../component/GbLogoCanvas";
 import GbLogo from "../../rom/GbLogo";
@@ -9,21 +10,31 @@ import GbLogo from "../../rom/GbLogo";
 interface GbLogoDialogProps extends ValueDialogProps<GbLogo> {}
 
 export default function GbLogoDialog(props: GbLogoDialogProps) {
-  const [value, setValue] = useWrap<GbLogo>(props.value.copy());
+  const [value, setValue] = useState<{ logo: GbLogo }>({
+    logo: props.value.copy(),
+  });
+
+  const updateLogo = (logo?: GbLogo) => {
+    if (logo === undefined)
+      setValue((oldValue) => ({
+        logo: oldValue.logo,
+      }));
+    else setValue({ logo: logo });
+  };
 
   const clearLogo = () => {
-    value.makeClear();
-    setValue();
+    value.logo.makeClear();
+    updateLogo();
   };
 
   const invertLogo = () => {
-    value.invert();
-    setValue();
+    value.logo.invert();
+    updateLogo();
   };
 
   const validLogo = () => {
-    value.makeValid();
-    setValue();
+    value.logo.makeValid();
+    updateLogo();
   };
 
   return (
@@ -31,20 +42,15 @@ export default function GbLogoDialog(props: GbLogoDialogProps) {
       {...props}
       maxWidth="lg"
       onSubmit={() => {
-        props.onSubmit(value);
+        props.onSubmit(value.logo);
       }}
       onCancel={() => {
-        setValue(props.value.copy());
+        updateLogo(props.value.copy());
         props.onCancel();
       }}
     >
       <Stack>
-        <GbLogoCanvas
-          logo={value}
-          updateLogo={() => {
-            setValue();
-          }}
-        />
+        <GbLogoCanvas value={value} updateLogo={updateLogo} />
         <Stack direction="row">
           <Button onClick={clearLogo}>Clear</Button>
           <Button onClick={invertLogo}>Invert</Button>

@@ -1,6 +1,6 @@
 import { useContext } from "react";
 
-import AppContext from "../../AppData";
+import { RomContext } from "../../AppData";
 import NesHeader, { Format } from "../../rom/NesHeader";
 
 import { HeaderEntry, HeaderDivider } from "./HeaderEditor";
@@ -13,7 +13,7 @@ const headerFormatLabelMap = new Map([
 ]);
 
 export default function NesHeaderEditor(props: {}) {
-  const context = useContext(AppContext);
+  const context = useContext(RomContext);
 
   const header = NesHeader.fromRom(context.buffer);
 

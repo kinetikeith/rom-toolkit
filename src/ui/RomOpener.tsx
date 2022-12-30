@@ -7,16 +7,16 @@ import Button from "@mui/material/Button";
 import FileOpenOutlinedIcon from "@mui/icons-material/FileOpenOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import AppContext from "../AppData";
+import { FileContext } from "../AppData";
 import { useUpload } from "../file";
 
 export default function RomOpener(props: {}) {
-  const context = useContext(AppContext);
+  const context = useContext(FileContext);
   const [loading, setLoading] = useState<boolean>(false);
   const triggerUpload = useUpload(
     (file: File) => {
       setLoading(true);
-      context.setFile(file).then(() => {
+      context.setOpened(file).then(() => {
         setLoading(false);
       });
     },

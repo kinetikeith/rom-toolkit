@@ -6,7 +6,7 @@ const WIDTH = 48;
 const HEIGHT = 8;
 
 interface GbLogoProps {
-  logo: GbLogo;
+  value: { logo: GbLogo };
   updateLogo: () => any;
 }
 
@@ -61,7 +61,7 @@ export default function GbLogoCanvas(props: GbLogoProps) {
     ctx.fillStyle = pixelColor;
     const [cursorX, cursorY] = cursorXY;
 
-    props.logo.eachPixel((xI: number, yI: number, value: boolean) => {
+    props.value.logo.eachPixel((xI: number, yI: number, value: boolean) => {
       const underCursor = xI === cursorX && yI === cursorY;
       if (value !== underCursor)
         ctx.fillRect(xI * scale, yI * scale, scale, scale);
@@ -98,7 +98,7 @@ export default function GbLogoCanvas(props: GbLogoProps) {
         if (cursorX === null) return;
         if (cursorY === null) return;
 
-        props.logo.togglePixel(cursorX, cursorY);
+        props.value.logo.togglePixel(cursorX, cursorY);
         props.updateLogo();
       }}
     />

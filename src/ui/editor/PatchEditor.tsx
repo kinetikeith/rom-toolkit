@@ -3,14 +3,14 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import { Buffer } from "buffer";
 
-import AppContext from "../../AppData";
+import { RomContext } from "../../AppData";
 import { useUploads } from "../../file";
 import { Patch, fileToPatch } from "../../rom/utils";
 
 import PatchCard from "../component/PatchCard";
 
 export default function PatchEditor(props: {}) {
-  const context = useContext(AppContext);
+  const context = useContext(RomContext);
   const [patches, setPatches] = useState<Array<Patch>>([]);
 
   const triggerUpload = useUploads(

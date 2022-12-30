@@ -11,7 +11,7 @@ import DeveloperBoardIcon from "@mui/icons-material/DeveloperBoard";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import HelpIcon from "@mui/icons-material/Help";
 
-import AppContext from "../../AppData";
+import { RomContext } from "../../AppData";
 import GbHeader, {
   romMap,
   ramMap,
@@ -93,7 +93,7 @@ function CartridgeFeatures(props: { code: number }) {
 
 export default function GbHeaderEditor(props: {}) {
   const [field, setField] = useState<Field>(Field.None);
-  const context = useContext(AppContext);
+  const context = useContext(RomContext);
 
   const header = GbHeader.fromRom(context.buffer);
 

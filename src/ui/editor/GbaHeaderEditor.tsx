@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 
-import AppContext from "../../AppData";
+import { RomContext } from "../../AppData";
 import GbaHeader, { destinationMap } from "../../rom/GbaHeader";
 
 import { HeaderEntry, HeaderDivider } from "./HeaderEditor";
@@ -19,7 +19,7 @@ enum Field {
 }
 
 export default function GbaHeaderEditor(props: {}) {
-  const context = useContext(AppContext);
+  const context = useContext(RomContext);
   const [field, setField] = useState<Field>(Field.None);
 
   const setFieldTo = (value: Field) => () => setField(value);

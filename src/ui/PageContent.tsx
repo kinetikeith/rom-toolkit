@@ -7,7 +7,7 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
-import AppContext, { FileState } from "../AppData";
+import { RomContext, FileContext } from "../AppData";
 import RomOpener from "./RomOpener";
 import GbContent from "./content/GbContent";
 import GbaContent from "./content/GbaContent";
@@ -17,20 +17,17 @@ import GenericContent from "./content/GenericContent";
 
 import { RomType } from "../rom/utils";
 
-interface PageContentProps {
-  fileState: FileState;
-  resetBuffer: () => any;
-}
+interface PageContentProps {}
 
 export default function PageContent(props: PageContentProps) {
-  const context = useContext(AppContext);
+  const romContext = useContext(RomContext);
+  const fileContext = useContext(FileContext);
 
   let content = null;
   /* Render tab */
-  if (props.fileState === FileState.Missing) content = <RomOpener />;
-  else {
+  if (fileContext.isOpen) {
     let editorContent = null;
-    switch (context.romType) {
+    switch (romContext.type) {
       case RomType.Gb:
         editorContent = <GbContent />;
         break;
@@ -47,16 +44,13 @@ export default function PageContent(props: PageContentProps) {
         editorContent = <GenericContent />;
     }
 
-    const saveVariant =
-      props.fileState === FileState.Modified ? "contained" : "outlined";
-
     content = (
       <>
         <Paper>{editorContent}</Paper>
         <Button
-          variant={saveVariant}
+          variant={romContext.isModified ? "contained" : "outlined"}
           onClick={() => {
-            context.getFile().then((file) => {
+            fileContext.getEdited().then((file) => {
               saveAs(file);
             });
           }}
@@ -65,7 +59,7 @@ export default function PageContent(props: PageContentProps) {
         </Button>
       </>
     );
-  }
+  } else content = <RomOpener />;
 
   return (
     <ContentWrapper>

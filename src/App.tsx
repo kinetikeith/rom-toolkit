@@ -1,14 +1,18 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
+
 import { Buffer } from "buffer";
 import { loadAsync as loadZipAsync } from "jszip";
-import crc32 from "crc/crc32";
 
-import { useWrap, UpdateArg } from "./wrap";
+import crc32 from "crc/crc32";
+import md5 from "md5";
+import sha1 from "sha1";
+
+import cached from "./cache";
 import { parsePath } from "./utils";
-import AppContext, { FileState } from "./AppData";
+import { RomContext, FileContext, BufferUpdateArg } from "./AppData";
 import { detectRomType, RomType } from "./rom/utils";
 
 import PageHeader from "./ui/PageHeader";
@@ -22,11 +26,17 @@ import {
   snesLightTheme,
 } from "./ui/theme";
 
-interface FileInfo {
+interface FileData {
+  isOpen: boolean;
   file: File;
   zipped: boolean;
   zipName: string;
-  romType: RomType;
+}
+
+interface RomData {
+  type: RomType;
+  buffer: Buffer;
+  isModified: boolean;
 }
 
 const themeMap = new Map([
@@ -39,25 +49,82 @@ const themeMap = new Map([
 const romExts = [".gb", ".gba", ".sfc", ".nes"];
 
 export default function App(props: {}) {
-  const [fileInfo, setFileInfo] = useState<FileInfo>({
+  const [fileData, setFileData] = useState<FileData>({
+    isOpen: false,
     file: new File([], ""),
     zipped: false,
     zipName: "",
-    romType: RomType.Generic,
   });
-  const [fileState, setFileState] = useState<FileState>(FileState.Missing);
-  const [buffer, setBuffer] = useWrap<Buffer>(Buffer.alloc(0));
-  const [bufferChecksum, setBufferChecksum] = useState<number>(0);
 
-  const updateBuffer = (value?: UpdateArg<Buffer>) => {
-    setFileState(FileState.Modified);
-    const newBuffer = setBuffer(value);
-    setBufferChecksum(crc32(newBuffer));
-  };
+  const [romData, setRomData] = useState<RomData>({
+    buffer: Buffer.alloc(0),
+    type: RomType.Generic,
+    isModified: false,
+  });
 
-  const setFile = async (file: File) => {
+  const updateRomBuffer = useCallback((arg?: BufferUpdateArg) => {
+    if (arg === undefined)
+      setRomData((oldRomData) => {
+        return {
+          ...oldRomData,
+          isModified: true,
+        };
+      });
+    else if (arg instanceof Function)
+      setRomData((oldRomData) => {
+        const newBuffer = arg(oldRomData.buffer);
+        if (newBuffer === undefined)
+          return {
+            ...oldRomData,
+            isModified: true,
+          };
+        else
+          return {
+            ...oldRomData,
+            isModified: true,
+            buffer: newBuffer,
+          };
+      });
+    else
+      setRomData((oldRomData) => {
+        return {
+          ...oldRomData,
+          isModified: true,
+          buffer: arg,
+        };
+      });
+  }, []);
+
+  const getCrc32 = useMemo(
+    () =>
+      cached(() => {
+        console.debug("Calculating CRC-32");
+        return crc32(romData.buffer);
+      }),
+    [romData]
+  );
+
+  const getMd5 = useMemo(
+    () =>
+      cached(() => {
+        console.debug("Calculating MD5");
+        return md5(romData.buffer);
+      }),
+    [romData]
+  );
+
+  const getSha1 = useMemo(
+    () =>
+      cached(() => {
+        console.debug("Calculating SHA-1");
+        return sha1(romData.buffer);
+      }),
+    [romData]
+  );
+
+  const setOpenedFile = useCallback(async (file: File) => {
     let { ext } = parsePath(file.name);
-    let newBuffer = Buffer.from(await file.arrayBuffer());
+    let buffer = Buffer.from(await file.arrayBuffer());
     let zipped = false;
     let zipName = "";
 
@@ -73,7 +140,7 @@ export default function App(props: {}) {
           zipName = zFile.name;
           zipped = true;
           ext = zPath.ext;
-          newBuffer = Buffer.from(await zFile.async("arraybuffer"));
+          buffer = Buffer.from(await zFile.async("arraybuffer"));
 
           break;
         }
@@ -84,54 +151,76 @@ export default function App(props: {}) {
       }
     }
 
-    setFileInfo({
+    setFileData({
+      isOpen: true,
       file: file,
       zipped: zipped,
       zipName: zipName,
-      romType: detectRomType(newBuffer, ext),
     });
-    updateBuffer(newBuffer);
-    setFileState(FileState.Opened);
-  };
 
-  const getFile = async (): Promise<File> => {
-    if (fileInfo.zipped) {
-      const zip = await loadZipAsync(fileInfo.file);
-      zip.file(fileInfo.zipName, buffer);
+    setRomData({
+      buffer: buffer,
+      isModified: false,
+      type: detectRomType(buffer, ext),
+    });
+  }, []);
+
+  const getEditedFile = useCallback(async (): Promise<File> => {
+    if (fileData.zipped) {
+      const zip = await loadZipAsync(fileData.file);
+      zip.file(fileData.zipName, romData.buffer);
       return new File(
         [await zip.generateAsync({ type: "blob" })],
-        fileInfo.file.name
+        fileData.file.name
       );
     }
-    return fileInfo.file;
-  };
+    return fileData.file;
+  }, [fileData, romData]);
 
-  const resetBuffer = async () => {
-    await setFile(fileInfo.file);
-  };
+  const resetOpenedFile = useCallback(async () => {
+    await setOpenedFile(fileData.file);
+  }, [setOpenedFile, fileData]);
 
-  const theme = themeMap.get(fileInfo.romType) || defaultTheme;
+  const theme = themeMap.get(romData.type) || defaultTheme;
+
+  const romContextValue = useMemo(
+    () => ({
+      type: romData.type,
+      buffer: romData.buffer,
+      updateBuffer: updateRomBuffer,
+      isModified: romData.isModified,
+
+      getCrc32: getCrc32,
+      getMd5: getMd5,
+      getSha1: getSha1,
+    }),
+    [romData, updateRomBuffer, getCrc32, getMd5, getSha1]
+  );
+
+  const fileContextValue = useMemo(
+    () => ({
+      isOpen: fileData.isOpen,
+      opened: fileData.file,
+      setOpened: setOpenedFile,
+      resetOpened: resetOpenedFile,
+
+      getEdited: getEditedFile,
+    }),
+    [fileData, setOpenedFile, resetOpenedFile, getEditedFile]
+  );
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline>
-        <AppContext.Provider
-          value={{
-            romType: fileInfo.romType,
-            setFile: setFile,
-            getFile: getFile,
-            buffer: buffer,
-            updateBuffer: updateBuffer,
-
-            bufferChecksum: bufferChecksum,
-          }}
-        >
+        <RomContext.Provider value={romContextValue}>
           <Stack direction="column" alignItems="center" sx={{ height: "100%" }}>
             <PageHeader />
-            <PageContent fileState={fileState} resetBuffer={resetBuffer} />
+            <FileContext.Provider value={fileContextValue}>
+              <PageContent />
+            </FileContext.Provider>
             <PageFooter />
           </Stack>
-        </AppContext.Provider>
+        </RomContext.Provider>
       </CssBaseline>
     </ThemeProvider>
   );

@@ -11,7 +11,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Button from "@mui/material/Button";
 
-import AppContext from "../../AppData";
+import { RomContext } from "../../AppData";
 import { asBytes, asHex } from "../format";
 import IpsPatch from "../../rom/IpsPatch";
 import UpsPatch from "../../rom/UpsPatch";
@@ -49,7 +49,7 @@ function IpsContent(props: { value: IpsPatch }) {
 }
 
 function UpsContent(props: { value: UpsPatch }) {
-  const context = useContext(AppContext);
+  const context = useContext(RomContext);
 
   const success = "success.dark";
   const error = "error.dark";
@@ -58,7 +58,7 @@ function UpsContent(props: { value: UpsPatch }) {
   const isPatchValid = patchCheck === props.value.patchChecksumCalc;
 
   const inputCheck = props.value.inputChecksum;
-  const isInputCheckValid = inputCheck === context.bufferChecksum;
+  const isInputCheckValid = inputCheck === context.getCrc32();
 
   const inputSize = props.value.inputSize;
   const isInputSizeValid = inputSize === context.buffer.length;

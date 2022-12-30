@@ -16,7 +16,7 @@ import FlashIcon from "@mui/icons-material/FlashOn";
 import RouterIcon from "@mui/icons-material/Router";
 import HelpIcon from "@mui/icons-material/Help";
 
-import AppContext from "../../AppData";
+import { RomContext } from "../../AppData";
 import SnesHeader, {
   mapperMap,
   destinationMap,
@@ -103,7 +103,7 @@ function CartridgeFeatures(props: { code: number }) {
 
 export default function SnesHeaderEditor(props: {}) {
   const [field, setField] = useState<Field>(Field.None);
-  const context = useContext(AppContext);
+  const context = useContext(RomContext);
 
   const header = SnesHeader.fromRom(context.buffer);
 
