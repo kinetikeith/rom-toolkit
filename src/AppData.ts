@@ -15,6 +15,7 @@ export interface RomContextType {
   getCrc32: () => number;
   getMd5: () => string;
   getSha1: () => string;
+  getSha256: () => string;
 }
 
 const RomContext = createContext<RomContextType>({
@@ -26,6 +27,7 @@ const RomContext = createContext<RomContextType>({
   getCrc32: () => 0,
   getMd5: () => "",
   getSha1: () => "",
+  getSha256: () => "",
 });
 
 interface FileContextType {

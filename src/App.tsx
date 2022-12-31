@@ -8,7 +8,7 @@ import { loadAsync as loadZipAsync } from "jszip";
 
 import crc32 from "crc/crc32";
 import md5 from "md5";
-import sha1 from "sha1";
+import jsSHA from "jssha";
 
 import cached from "./cache";
 import { parsePath } from "./utils";
@@ -62,9 +62,24 @@ export default function App(props: {}) {
     isModified: false,
   });
 
+  /*
+  const [crc32, setCrc32] = useState<number>(0);
+  const [md5, setMd5] = useState<string>("");
+  const [sha1, setSha1] = useState<string>("");
+  const [sha256, setSha256] = useState<string>("");
+  
+  const updateChecksums(buffer: Buffer) {
+    checksums.getCrc32(buffer).then(setCrc32);
+    checksums.getMd5(buffer).then(setMd5);
+    checksums.getSha1(buffer).then(setSha1);
+    checksums.getSha256(buffer).then(setSha256);
+  }
+  */
+
   const updateRomBuffer = useCallback((arg?: BufferUpdateArg) => {
     if (arg === undefined)
       setRomData((oldRomData) => {
+        // updateChecksums(oldRomData.buffer);
         return {
           ...oldRomData,
           isModified: true,
@@ -73,17 +88,20 @@ export default function App(props: {}) {
     else if (arg instanceof Function)
       setRomData((oldRomData) => {
         const newBuffer = arg(oldRomData.buffer);
-        if (newBuffer === undefined)
+        if (newBuffer === undefined) {
+          // updateChecksums(oldRomData.buffer);
           return {
             ...oldRomData,
             isModified: true,
           };
-        else
+        } else {
+          // updateChecksums(newBuffer);
           return {
             ...oldRomData,
             isModified: true,
             buffer: newBuffer,
           };
+        }
       });
     else
       setRomData((oldRomData) => {
@@ -117,7 +135,20 @@ export default function App(props: {}) {
     () =>
       cached(() => {
         console.debug("Calculating SHA-1");
-        return sha1(romData.buffer);
+        const sha1Obj = new jsSHA("SHA-1", "UINT8ARRAY");
+        sha1Obj.update(romData.buffer);
+        return sha1Obj.getHash("HEX");
+      }),
+    [romData]
+  );
+
+  const getSha256 = useMemo(
+    () =>
+      cached(() => {
+        console.debug("Calculating SHA-256");
+        const sha256Obj = new jsSHA("SHA-256", "UINT8ARRAY");
+        sha256Obj.update(romData.buffer);
+        return sha256Obj.getHash("HEX");
       }),
     [romData]
   );
@@ -190,11 +221,18 @@ export default function App(props: {}) {
       updateBuffer: updateRomBuffer,
       isModified: romData.isModified,
 
+      /* crc32: crc32,
+       * md5: md5,
+       * sha1: sha1,
+       * sha256: sha256,
+       */
+
       getCrc32: getCrc32,
       getMd5: getMd5,
       getSha1: getSha1,
+      getSha256: getSha256,
     }),
-    [romData, updateRomBuffer, getCrc32, getMd5, getSha1]
+    [romData, updateRomBuffer, getCrc32, getMd5, getSha1, getSha256]
   );
 
   const fileContextValue = useMemo(
