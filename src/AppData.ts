@@ -12,10 +12,10 @@ export interface RomContextType {
   updateBuffer: (arg?: BufferUpdateArg) => void;
   isModified: boolean;
 
-  getCrc32: () => number;
-  getMd5: () => string;
-  getSha1: () => string;
-  getSha256: () => string;
+  crc32: number;
+  md5: string;
+  sha1: string;
+  sha256: string;
 }
 
 const RomContext = createContext<RomContextType>({
@@ -24,10 +24,10 @@ const RomContext = createContext<RomContextType>({
   updateBuffer: () => {},
   isModified: false,
 
-  getCrc32: () => 0,
-  getMd5: () => "",
-  getSha1: () => "",
-  getSha256: () => "",
+  crc32: 0,
+  md5: "",
+  sha1: "",
+  sha256: "",
 });
 
 interface FileContextType {

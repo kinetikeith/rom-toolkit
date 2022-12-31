@@ -58,7 +58,7 @@ function UpsContent(props: { value: UpsPatch }) {
   const isPatchValid = patchCheck === props.value.patchChecksumCalc;
 
   const inputCheck = props.value.inputChecksum;
-  const isInputCheckValid = inputCheck === context.getCrc32();
+  const isInputCheckValid = inputCheck === context.crc32;
 
   const inputSize = props.value.inputSize;
   const isInputSizeValid = inputSize === context.buffer.length;

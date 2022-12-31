@@ -6,11 +6,9 @@ import Stack from "@mui/material/Stack";
 import { Buffer } from "buffer";
 import { loadAsync as loadZipAsync } from "jszip";
 
-import crc32 from "crc/crc32";
-import md5 from "md5";
-import jsSHA from "jssha";
+import { wrap as comlinkWrap } from "comlink";
+import { Checksum } from "./workers/checksum";
 
-import cached from "./cache";
 import { parsePath } from "./utils";
 import { RomContext, FileContext, BufferUpdateArg } from "./AppData";
 import { detectRomType, RomType } from "./rom/utils";
@@ -48,6 +46,10 @@ const themeMap = new Map([
 
 const romExts = [".gb", ".gba", ".sfc", ".nes"];
 
+const checksum = comlinkWrap<Checksum>(
+  new Worker(new URL("./workers/checksum", import.meta.url))
+);
+
 export default function App(props: {}) {
   const [fileData, setFileData] = useState<FileData>({
     isOpen: false,
@@ -62,24 +64,22 @@ export default function App(props: {}) {
     isModified: false,
   });
 
-  /*
   const [crc32, setCrc32] = useState<number>(0);
   const [md5, setMd5] = useState<string>("");
   const [sha1, setSha1] = useState<string>("");
   const [sha256, setSha256] = useState<string>("");
-  
-  const updateChecksums(buffer: Buffer) {
-    checksums.getCrc32(buffer).then(setCrc32);
-    checksums.getMd5(buffer).then(setMd5);
-    checksums.getSha1(buffer).then(setSha1);
-    checksums.getSha256(buffer).then(setSha256);
-  }
-  */
+
+  const updateChecksums = (buffer: Buffer): void => {
+    checksum.getCrc32(buffer).then(setCrc32);
+    checksum.getMd5(buffer).then(setMd5);
+    checksum.getSha1(buffer).then(setSha1);
+    checksum.getSha256(buffer).then(setSha256);
+  };
 
   const updateRomBuffer = useCallback((arg?: BufferUpdateArg) => {
     if (arg === undefined)
       setRomData((oldRomData) => {
-        // updateChecksums(oldRomData.buffer);
+        updateChecksums(oldRomData.buffer);
         return {
           ...oldRomData,
           isModified: true,
@@ -89,13 +89,13 @@ export default function App(props: {}) {
       setRomData((oldRomData) => {
         const newBuffer = arg(oldRomData.buffer);
         if (newBuffer === undefined) {
-          // updateChecksums(oldRomData.buffer);
+          updateChecksums(oldRomData.buffer);
           return {
             ...oldRomData,
             isModified: true,
           };
         } else {
-          // updateChecksums(newBuffer);
+          updateChecksums(newBuffer);
           return {
             ...oldRomData,
             isModified: true,
@@ -103,7 +103,8 @@ export default function App(props: {}) {
           };
         }
       });
-    else
+    else {
+      updateChecksums(arg);
       setRomData((oldRomData) => {
         return {
           ...oldRomData,
@@ -111,47 +112,8 @@ export default function App(props: {}) {
           buffer: arg,
         };
       });
+    }
   }, []);
-
-  const getCrc32 = useMemo(
-    () =>
-      cached(() => {
-        console.debug("Calculating CRC-32");
-        return crc32(romData.buffer);
-      }),
-    [romData]
-  );
-
-  const getMd5 = useMemo(
-    () =>
-      cached(() => {
-        console.debug("Calculating MD5");
-        return md5(romData.buffer);
-      }),
-    [romData]
-  );
-
-  const getSha1 = useMemo(
-    () =>
-      cached(() => {
-        console.debug("Calculating SHA-1");
-        const sha1Obj = new jsSHA("SHA-1", "UINT8ARRAY");
-        sha1Obj.update(romData.buffer);
-        return sha1Obj.getHash("HEX");
-      }),
-    [romData]
-  );
-
-  const getSha256 = useMemo(
-    () =>
-      cached(() => {
-        console.debug("Calculating SHA-256");
-        const sha256Obj = new jsSHA("SHA-256", "UINT8ARRAY");
-        sha256Obj.update(romData.buffer);
-        return sha256Obj.getHash("HEX");
-      }),
-    [romData]
-  );
 
   const setOpenedFile = useCallback(async (file: File) => {
     let { ext } = parsePath(file.name);
@@ -194,6 +156,8 @@ export default function App(props: {}) {
       isModified: false,
       type: detectRomType(buffer, ext),
     });
+
+    updateChecksums(buffer);
   }, []);
 
   const getEditedFile = useCallback(async (): Promise<File> => {
@@ -221,18 +185,12 @@ export default function App(props: {}) {
       updateBuffer: updateRomBuffer,
       isModified: romData.isModified,
 
-      /* crc32: crc32,
-       * md5: md5,
-       * sha1: sha1,
-       * sha256: sha256,
-       */
-
-      getCrc32: getCrc32,
-      getMd5: getMd5,
-      getSha1: getSha1,
-      getSha256: getSha256,
+      crc32: crc32,
+      md5: md5,
+      sha1: sha1,
+      sha256: sha256,
     }),
-    [romData, updateRomBuffer, getCrc32, getMd5, getSha1, getSha256]
+    [romData, updateRomBuffer, crc32, md5, sha1, sha256]
   );
 
   const fileContextValue = useMemo(
