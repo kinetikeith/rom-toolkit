@@ -302,9 +302,12 @@ export default function GbHeaderEditor(props: {}) {
         label="Header Checksum"
         color={headerChecksumColor}
         onUpdate={() => {
-          header.headerChecksum = header.headerChecksumCalc;
+          const newHeaderChecksum = header.headerChecksumCalc;
 
-          context.updateBuffer();
+          if (newHeaderChecksum !== header.headerChecksum) {
+            header.headerChecksum = header.headerChecksumCalc;
+            context.updateBuffer();
+          }
         }}
       >
         {asHex(headerChecksum)}
