@@ -1,5 +1,26 @@
 import { createTheme } from "@mui/material/styles";
 
+declare module "@mui/material/styles" {
+  interface TypographyVariants {
+    mono1: React.CSSProperties;
+    mono2: React.CSSProperties;
+  }
+
+  interface TypographyVariantsOptions {
+    mono1?: React.CSSProperties;
+    mono2?: React.CSSProperties;
+  }
+}
+
+declare module "@mui/material/Typography" {
+  interface TypographyPropsVariantOverrides {
+    mono1: true;
+    mono2: true;
+  }
+}
+
+const monoFamilies = ['"Roboto Mono"', "monospace"].join(",");
+
 export const defaultTheme = createTheme({
   palette: {
     mode: "light",
@@ -10,9 +31,20 @@ export const defaultTheme = createTheme({
       main: "#ffe263",
     },
   },
+  typography: {
+    mono1: {
+      fontSize: 13,
+      fontFamily: monoFamilies,
+    },
+    mono2: {
+      fontSize: 10,
+      fontFamily: monoFamilies,
+    },
+  },
 });
 
 export const gbLightTheme = createTheme({
+  ...defaultTheme,
   palette: {
     mode: "light",
     primary: {
@@ -28,6 +60,7 @@ export const gbLightTheme = createTheme({
 });
 
 export const gbaLightTheme = createTheme({
+  ...defaultTheme,
   palette: {
     mode: "light",
     primary: {
@@ -43,6 +76,7 @@ export const gbaLightTheme = createTheme({
 });
 
 export const nesLightTheme = createTheme({
+  ...defaultTheme,
   palette: {
     mode: "light",
     primary: {
@@ -58,6 +92,7 @@ export const nesLightTheme = createTheme({
 });
 
 export const snesLightTheme = createTheme({
+  ...defaultTheme,
   palette: {
     mode: "light",
     primary: {
