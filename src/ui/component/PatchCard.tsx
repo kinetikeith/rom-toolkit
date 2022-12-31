@@ -12,10 +12,10 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Button from "@mui/material/Button";
 
 import { RomContext } from "../../AppData";
-import { asBytes, asHex } from "../format";
+import { asBytes, asHexRaw } from "../format";
 import IpsPatch from "../../rom/IpsPatch";
 import UpsPatch from "../../rom/UpsPatch";
-import LabeledValue from "./LabeledValue";
+import { TextEntry, DataDivider } from "./data";
 
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
@@ -35,15 +35,15 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 function IpsContent(props: { value: IpsPatch }) {
   return (
     <>
-      <LabeledValue label="Blocks" space={5}>
+      <TextEntry label="Blocks" space={5}>
         {props.value.chunks.length}
-      </LabeledValue>
-      <LabeledValue label="Begin Address" space={3}>
-        {props.value.begin}
-      </LabeledValue>
-      <LabeledValue label="End Address" space={3}>
-        {props.value.end}
-      </LabeledValue>
+      </TextEntry>
+      <TextEntry label="Begin Address" space={3}>
+        {props.value.begin || 0}
+      </TextEntry>
+      <TextEntry label="End Address" space={3}>
+        {props.value.end || 0}
+      </TextEntry>
     </>
   );
 }
@@ -65,36 +65,42 @@ function UpsContent(props: { value: UpsPatch }) {
 
   return (
     <>
-      <LabeledValue
-        label="Patch Checksum"
+      <DataDivider>Patch File</DataDivider>
+      <TextEntry label="Size" space={2}>
+        {asBytes(props.value.patchSize)}
+      </TextEntry>
+      <TextEntry
+        label="Checksum"
         space={2}
-        valueColor={isPatchValid ? success : error}
+        color={isPatchValid ? success : error}
       >
-        {asHex(props.value.patchChecksum, 8)}
-      </LabeledValue>
-      <LabeledValue
-        label="Input File Size"
+        {asHexRaw(props.value.patchChecksum, 8)}
+      </TextEntry>
+      <TextEntry label="Blocks" space={3}>
+        {props.value.chunks.length}
+      </TextEntry>
+      <DataDivider>Input File</DataDivider>
+      <TextEntry
+        label="Size"
         space={3}
-        valueColor={isInputSizeValid ? success : error}
+        color={isInputSizeValid ? success : error}
       >
         {asBytes(props.value.inputSize)}
-      </LabeledValue>
-      <LabeledValue
-        label="Input File Checksum"
+      </TextEntry>
+      <TextEntry
+        label="Checksum"
         space={2}
-        valueColor={isInputCheckValid ? success : error}
+        color={isInputCheckValid ? success : error}
       >
-        {asHex(props.value.inputChecksum, 8)}
-      </LabeledValue>
-      <LabeledValue label="Output File Size" space={3}>
+        {asHexRaw(props.value.inputChecksum, 8)}
+      </TextEntry>
+      <DataDivider>Output File</DataDivider>
+      <TextEntry label="Size" space={3}>
         {asBytes(props.value.outputSize)}
-      </LabeledValue>
-      <LabeledValue label="Ouput File Checksum" space={2}>
-        {asHex(props.value.outputChecksum, 8)}
-      </LabeledValue>
-      <LabeledValue label="Blocks" space={3}>
-        {props.value.chunks.length}
-      </LabeledValue>
+      </TextEntry>
+      <TextEntry label="Checksum" space={2}>
+        {asHexRaw(props.value.outputChecksum, 8)}
+      </TextEntry>
     </>
   );
 }

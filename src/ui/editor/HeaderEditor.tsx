@@ -1,5 +1,7 @@
 import Divider, { DividerProps } from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
+import Typography, { TypographyProps } from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
 
 import InfoIcon from "@mui/icons-material/InfoOutlined";
 import EditIcon from "@mui/icons-material/Edit";
@@ -7,7 +9,7 @@ import ReplayIcon from "@mui/icons-material/Replay";
 
 import { styled } from "@mui/material/styles";
 
-import LabeledValue from "../component/LabeledValue";
+import { DataEntry } from "../component/data";
 
 export const HeaderDivider = styled((props: DividerProps) => (
   <Divider variant="middle" {...props} />
@@ -22,7 +24,7 @@ interface HeaderEntryProps {
   onEdit?: () => any;
   onUpdate?: () => any;
   children?: any;
-  color?: string;
+  color?: TypographyProps["color"];
 }
 
 export function HeaderEntry(props: HeaderEntryProps) {
@@ -52,12 +54,15 @@ export function HeaderEntry(props: HeaderEntryProps) {
     </IconButton>
   );
 
+  // TODO: possibly move right-side stacking to DataEntry component
   return (
-    <LabeledValue label={props.label} space={9}>
-      <>
-        {props.children}
+    <DataEntry label={props.label} space={9}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Typography variant="mono1" color={props.color}>
+          {props.children}
+        </Typography>
         {interactButton}
-      </>
-    </LabeledValue>
+      </Stack>
+    </DataEntry>
   );
 }
