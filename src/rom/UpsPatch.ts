@@ -78,11 +78,13 @@ export default class UpsPatch {
     return [inputSize, outputSize, offset];
   }
 
+  get patchSize() {
+    return this._buffer.length;
+  }
   get inputSize() {
     const [inputSize, ,] = this.fileSizes;
     return inputSize;
   }
-
   get outputSize() {
     const [, outputSize] = this.fileSizes;
     return outputSize;
