@@ -3,15 +3,18 @@ import { useState } from "react";
 import { Navbar, Panel } from "./content";
 import GbHeaderEditor from "../editor/GbHeaderEditor";
 import PatchEditor from "../editor/PatchEditor";
+import InfoDisplay from "../editor/InfoDisplay";
 
 enum Mode {
   Header,
   Patch,
+  Info,
 }
 
 const modeLabels = new Map([
   [Mode.Header, "Header"],
   [Mode.Patch, "Patch"],
+  [Mode.Info, "Info"],
 ]);
 
 export default function GbContent(props: {}) {
@@ -25,6 +28,9 @@ export default function GbContent(props: {}) {
       </Panel>
       <Panel show={mode === Mode.Patch}>
         <PatchEditor />
+      </Panel>
+      <Panel show={mode === Mode.Info}>
+        <InfoDisplay unmount={mode !== Mode.Info} />
       </Panel>
     </>
   );
