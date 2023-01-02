@@ -48,4 +48,16 @@ const FileContext = createContext<FileContextType>({
   getEdited: async () => new File([], ""),
 });
 
-export { RomContext, FileContext };
+interface PatchContextType {
+  files: File[];
+  add: (file: File) => void;
+  remove: (file: File) => void;
+}
+
+const PatchContext = createContext<PatchContextType>({
+  files: [],
+  add: () => {},
+  remove: () => {},
+});
+
+export { RomContext, FileContext, PatchContext };

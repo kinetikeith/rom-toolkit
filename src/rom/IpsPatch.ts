@@ -9,11 +9,9 @@ interface Chunk {
 
 export default class IpsPatch {
   _buffer: Buffer;
-  readonly fileName: string;
 
-  constructor(buffer: Buffer, fileName: string = "") {
+  constructor(buffer: Buffer) {
     this._buffer = buffer;
-    this.fileName = fileName;
   }
 
   get validityScore() {
@@ -64,12 +62,16 @@ export default class IpsPatch {
     return Array.from(this.getChunks());
   }
 
-  get begin() {
-    return min(this.chunks.map((chunk) => chunk.offset));
+  get nChunks() {
+    return this.chunks.length;
   }
 
-  get end() {
-    return max(this.chunks.map((chunk) => chunk.offset + chunk.length));
+  get begin(): number {
+    return min(this.chunks.map((chunk) => chunk.offset)) || 0;
+  }
+
+  get end(): number {
+    return max(this.chunks.map((chunk) => chunk.offset + chunk.length)) || 0;
   }
 
   applyTo(buffer: Buffer): Buffer {
@@ -87,5 +89,13 @@ export default class IpsPatch {
     }
 
     return resBuffer;
+  }
+
+  get info() {
+    return {
+      nChunks: this.nChunks,
+      begin: this.begin,
+      end: this.end,
+    };
   }
 }

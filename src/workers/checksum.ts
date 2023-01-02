@@ -5,7 +5,7 @@ import crc32 from "crc/crc32";
 import md5 from "md5";
 import jsSHA from "jssha";
 
-const checksum = {
+const checksumInterface = {
   getCrc32(buffer: Buffer) {
     return crc32(buffer);
   },
@@ -24,6 +24,6 @@ const checksum = {
   },
 };
 
-export type Checksum = typeof checksum;
+export type ChecksumInterface = typeof checksumInterface;
 
-expose(checksum);
+expose(checksumInterface);

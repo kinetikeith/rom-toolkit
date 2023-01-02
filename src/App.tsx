@@ -7,10 +7,15 @@ import { Buffer } from "buffer";
 import { loadAsync as loadZipAsync } from "jszip";
 
 import { wrap as comlinkWrap } from "comlink";
-import { Checksum } from "./workers/checksum";
+import { ChecksumInterface } from "./workers/checksum";
 
 import { parsePath } from "./utils";
-import { RomContext, FileContext, BufferUpdateArg } from "./AppData";
+import {
+  RomContext,
+  FileContext,
+  PatchContext,
+  BufferUpdateArg,
+} from "./AppData";
 import { detectRomType, RomType } from "./rom/utils";
 
 import PageHeader from "./ui/PageHeader";
@@ -46,7 +51,7 @@ const themeMap = new Map([
 
 const romExts = [".gb", ".gba", ".sfc", ".nes"];
 
-const checksum = comlinkWrap<Checksum>(
+const checksumThread = comlinkWrap<ChecksumInterface>(
   new Worker(new URL("./workers/checksum", import.meta.url))
 );
 
@@ -58,22 +63,24 @@ export default function App(props: {}) {
     zipName: "",
   });
 
+  const [crc32, setCrc32] = useState<number>(0);
+  const [md5, setMd5] = useState<string>("");
+  const [sha1, setSha1] = useState<string>("");
+  const [sha256, setSha256] = useState<string>("");
+
   const [romData, setRomData] = useState<RomData>({
     buffer: Buffer.alloc(0),
     type: RomType.Generic,
     isModified: false,
   });
 
-  const [crc32, setCrc32] = useState<number>(0);
-  const [md5, setMd5] = useState<string>("");
-  const [sha1, setSha1] = useState<string>("");
-  const [sha256, setSha256] = useState<string>("");
+  const [patchFiles, setPatchFiles] = useState<File[]>([]);
 
   const updateChecksums = (buffer: Buffer): void => {
-    checksum.getCrc32(buffer).then(setCrc32);
-    checksum.getMd5(buffer).then(setMd5);
-    checksum.getSha1(buffer).then(setSha1);
-    checksum.getSha256(buffer).then(setSha256);
+    checksumThread.getCrc32(buffer).then(setCrc32);
+    checksumThread.getMd5(buffer).then(setMd5);
+    checksumThread.getSha1(buffer).then(setSha1);
+    checksumThread.getSha256(buffer).then(setSha256);
   };
 
   const updateRomBuffer = useCallback((arg?: BufferUpdateArg) => {
@@ -176,6 +183,16 @@ export default function App(props: {}) {
     await setOpenedFile(fileData.file);
   }, [setOpenedFile, fileData]);
 
+  const addPatchFile = useCallback((file: File) => {
+    setPatchFiles((oldPatchFiles) => [...oldPatchFiles, file]);
+  }, []);
+
+  const removePatchFile = useCallback((file: File) => {
+    setPatchFiles((oldPatchFiles) =>
+      oldPatchFiles.filter((oldFile) => oldFile !== file)
+    );
+  }, []);
+
   const theme = themeMap.get(romData.type) || defaultTheme;
 
   const romContextValue = useMemo(
@@ -205,15 +222,26 @@ export default function App(props: {}) {
     [fileData, setOpenedFile, resetOpenedFile, getEditedFile]
   );
 
+  const patchContextValue = useMemo(
+    () => ({
+      files: patchFiles,
+      add: addPatchFile,
+      remove: removePatchFile,
+    }),
+    [patchFiles, addPatchFile, removePatchFile]
+  );
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline>
         <RomContext.Provider value={romContextValue}>
           <Stack direction="column" alignItems="center" sx={{ height: "100%" }}>
             <PageHeader />
-            <FileContext.Provider value={fileContextValue}>
-              <PageContent />
-            </FileContext.Provider>
+            <PatchContext.Provider value={patchContextValue}>
+              <FileContext.Provider value={fileContextValue}>
+                <PageContent />
+              </FileContext.Provider>
+            </PatchContext.Provider>
             <PageFooter />
           </Stack>
         </RomContext.Provider>

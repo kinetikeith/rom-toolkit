@@ -54,11 +54,9 @@ function readVUInt(buffer: Buffer, offset: number): [number, number] {
 
 export default class UpsPatch {
   _buffer: Buffer;
-  readonly fileName: string;
 
-  constructor(buffer: Buffer, fileName: string = "") {
+  constructor(buffer: Buffer) {
     this._buffer = buffer;
-    this.fileName = fileName;
   }
 
   get validityScore() {
@@ -132,6 +130,26 @@ export default class UpsPatch {
 
   get chunks() {
     return Array.from(this.getChunks());
+  }
+
+  get nChunks() {
+    return this.chunks.length;
+  }
+
+  get info() {
+    return {
+      nChunks: this.nChunks,
+
+      patchSize: this.patchSize,
+      patchChecksum: this.patchChecksum,
+      patchChecksumCalc: this.patchChecksumCalc,
+
+      inputSize: this.inputSize,
+      inputChecksum: this.inputChecksum,
+
+      outputSize: this.outputSize,
+      outputChecksum: this.outputChecksum,
+    };
   }
 
   applyTo(buffer: Buffer, errFunc: UpsErrorHandler = upsErrHandler): Buffer {

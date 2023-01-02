@@ -30,8 +30,7 @@ export function DataEntry(props: DataEntryProps) {
   return (
     <Stack direction="row" justifyContent="space-between" alignItems="center">
       <Typography>{props.label}</Typography>
-      <Box sx={{ width: theme.spacing(props.space || 1) }} />
-      {props.children}
+      <Box sx={{ ml: theme.spacing(props.space || 1) }}>{props.children}</Box>
     </Stack>
   );
 }

@@ -1,59 +1,34 @@
-import { useState, useContext } from "react";
+import { useContext, useCallback } from "react";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-import { Buffer } from "buffer";
 
-import { RomContext } from "../../AppData";
+import { PatchContext } from "../../AppData";
 import { useUploads } from "../../file";
-import { Patch, fileToPatch } from "../../rom/utils";
 
 import PatchCard from "../component/PatchCard";
 
-export default function PatchEditor(props: {}) {
-  const context = useContext(RomContext);
-  const [patches, setPatches] = useState<Array<Patch>>([]);
+const patchExts = [".ips", ".ups"];
 
-  const triggerUpload = useUploads(
+export default function PatchEditor(props: {}) {
+  const context = useContext(PatchContext);
+
+  const onUploads = useCallback(
     (files: File[]) => {
-      files.forEach((file, index) => {
-        file.arrayBuffer().then((arrayBuffer) => {
-          const patch = fileToPatch(Buffer.from(arrayBuffer), file.name);
-          if (patch !== undefined) {
-            setPatches((patchesOld: Array<Patch>) => {
-              const patchesNew = patchesOld.slice(0);
-              patchesNew.push(patch);
-              return patchesNew;
-            });
-          }
-        });
-      });
+      files.forEach((file) => context.add(file));
     },
-    [".ips", ".ups"]
+    [context]
   );
 
-  const removePatch = (index: number) => {
-    setPatches((patchesOld) => {
-      patchesOld.splice(index, 1);
-      return patchesOld.slice(0);
-    });
-  };
-
-  const applyPatch = (index: number) => {
-    const patch = patches[index];
-    const buffer = patch.applyTo(context.buffer);
-    removePatch(index);
-    context.updateBuffer(buffer);
-  };
+  const triggerUpload = useUploads(onUploads, patchExts);
 
   return (
     <>
       <Stack spacing={2}>
-        {patches.map((patch, index) => (
+        {context.files.map((file, index) => (
           <PatchCard
-            value={patch}
+            value={file}
             key={index}
-            onApply={() => applyPatch(index)}
-            onCancel={() => removePatch(index)}
+            onRemove={() => context.remove(file)}
           />
         ))}
         <Button variant="contained" color="secondary" onClick={triggerUpload}>

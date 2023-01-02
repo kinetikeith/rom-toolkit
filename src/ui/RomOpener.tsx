@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useCallback } from "react";
 
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
@@ -10,18 +10,22 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { FileContext } from "../AppData";
 import { useUpload } from "../file";
 
+const romExts = [".gb", ".gbc", ".gba", ".nes", ".sfc", ".zip"];
+
 export default function RomOpener(props: {}) {
   const context = useContext(FileContext);
   const [loading, setLoading] = useState<boolean>(false);
-  const triggerUpload = useUpload(
+  const onUpload = useCallback(
     (file: File) => {
       setLoading(true);
       context.setOpened(file).then(() => {
         setLoading(false);
       });
     },
-    [".gb", ".gbc", ".gba", ".nes", ".sfc", ".zip"]
+    [context]
   );
+
+  const clickFunc = useUpload(onUpload, romExts);
 
   return (
     <Paper sx={{ p: 2 }}>
@@ -34,7 +38,7 @@ export default function RomOpener(props: {}) {
         <FileOpenOutlinedIcon sx={{ fontSize: 40 }} />
         <Box sx={{ position: "relative" }}>
           <Button
-            onClick={triggerUpload}
+            onClick={clickFunc}
             variant="contained"
             component="label"
             disabled={loading}

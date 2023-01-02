@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect, useCallback } from "react";
 
 import { styled } from "@mui/material/styles";
 import Card from "@mui/material/Card";
@@ -10,11 +10,20 @@ import IconButton, { IconButtonProps } from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Button from "@mui/material/Button";
+import Skeleton from "@mui/material/Skeleton";
+
+import { wrap as comlinkWrap } from "comlink";
+import { Buffer } from "buffer";
 
 import { RomContext } from "../../AppData";
 import { asBytes, asHexRaw } from "../format";
-import IpsPatch from "../../rom/IpsPatch";
-import UpsPatch from "../../rom/UpsPatch";
+import { PatchType } from "../../rom/utils";
+import {
+  PatchInterface,
+  PatchInfo,
+  IpsPatchInfo,
+  UpsPatchInfo,
+} from "../../workers/patch";
 import { TextEntry, DataDivider } from "./data";
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -32,11 +41,11 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
   }),
 }));
 
-function IpsContent(props: { value: IpsPatch }) {
+function IpsContent(props: { value: IpsPatchInfo }) {
   return (
     <>
       <TextEntry label="Blocks" space={5}>
-        {props.value.chunks.length}
+        {props.value.nChunks}
       </TextEntry>
       <TextEntry label="Begin Address" space={3}>
         {props.value.begin || 0}
@@ -48,7 +57,7 @@ function IpsContent(props: { value: IpsPatch }) {
   );
 }
 
-function UpsContent(props: { value: UpsPatch }) {
+function UpsContent(props: { value: UpsPatchInfo }) {
   const context = useContext(RomContext);
 
   const success = "success.dark";
@@ -77,7 +86,7 @@ function UpsContent(props: { value: UpsPatch }) {
         {asHexRaw(props.value.patchChecksum, 8)}
       </TextEntry>
       <TextEntry label="Blocks" space={3}>
-        {props.value.chunks.length}
+        {props.value.nChunks}
       </TextEntry>
       <DataDivider>Input File</DataDivider>
       <TextEntry
@@ -105,44 +114,78 @@ function UpsContent(props: { value: UpsPatch }) {
   );
 }
 
+const patchThread = comlinkWrap<PatchInterface>(
+  new Worker(new URL("../../workers/patch", import.meta.url))
+);
+
 export default function PatchCard(props: {
-  value: IpsPatch | UpsPatch;
-  onApply: () => void;
-  onCancel: () => void;
+  value: File;
+  onRemove: () => void;
 }) {
   const [expanded, setExpanded] = useState<boolean>(false);
+  const [patchInfo, setPatchInfo] = useState<PatchInfo | undefined>(undefined);
+  const romContext = useContext(RomContext);
+
+  const { value, onRemove } = props;
+
+  useEffect(() => {
+    async function updatePatchInfo() {
+      const patchBuffer = Buffer.from(await value.arrayBuffer());
+      const newPatchInfo = await patchThread.getInfo(patchBuffer);
+      setPatchInfo(newPatchInfo);
+    }
+    updatePatchInfo();
+  }, [value]);
+
+  const apply = useCallback(async () => {
+    const patchBuffer = Buffer.from(await value.arrayBuffer());
+    const newBuffer = await patchThread.apply(romContext.buffer, patchBuffer);
+    romContext.updateBuffer(Buffer.from(newBuffer));
+    onRemove();
+  }, [value, onRemove, romContext]);
 
   let content = null;
   let typeLabel = "";
-  if (props.value instanceof IpsPatch) {
-    content = <IpsContent value={props.value} />;
-    typeLabel = "IPS Patch";
-  } else if (props.value instanceof UpsPatch) {
-    content = <UpsContent value={props.value} />;
-    typeLabel = "UPS Patch";
+  const loading = patchInfo === undefined;
+
+  if (!loading) {
+    if (patchInfo.type === PatchType.Ips) {
+      content = <IpsContent value={patchInfo} />;
+      typeLabel = "IPS Patch";
+    } else if (patchInfo.type === PatchType.Ups) {
+      content = <UpsContent value={patchInfo} />;
+      typeLabel = "UPS Patch";
+    } else if (patchInfo.type === PatchType.Unknown) {
+      typeLabel = "Unknown Format";
+    }
   }
+
+  const titleComponent = loading ? <Skeleton>{typeLabel}</Skeleton> : typeLabel;
+  const subComponent = loading ? <Skeleton>{value.name}</Skeleton> : value.name;
 
   return (
     <Card variant="outlined">
       <CardHeader
-        title={typeLabel}
-        subheader={props.value.fileName}
+        title={titleComponent}
+        subheader={subComponent}
         action={
-          <IconButton onClick={props.onCancel}>
+          <IconButton onClick={onRemove}>
             <CloseIcon />
           </IconButton>
         }
       />
       <CardActions disableSpacing>
-        <Button onClick={props.onApply} variant="contained">
+        <Button onClick={apply} variant="contained" disabled={loading}>
           Apply
         </Button>
-        <ExpandMore
-          expand={expanded}
-          onClick={() => setExpanded((expandedOld) => !expandedOld)}
-        >
-          <ExpandMoreIcon />
-        </ExpandMore>
+        {content === null ? null : (
+          <ExpandMore
+            expand={expanded}
+            onClick={() => setExpanded((expandedOld) => !expandedOld)}
+          >
+            <ExpandMoreIcon />
+          </ExpandMore>
+        )}
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>{content}</CardContent>

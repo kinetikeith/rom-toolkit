@@ -13,11 +13,17 @@ import UpsPatch from "./UpsPatch";
 export type Patch = IpsPatch | UpsPatch;
 
 export enum RomType {
-  Generic,
+  Generic = -1,
   Gb,
   Gba,
   Nes,
   Snes,
+}
+
+export enum PatchType {
+  Unknown = -1,
+  Ips,
+  Ups,
 }
 
 export function detectRomType(buffer: Buffer, ext: string): RomType {
@@ -55,14 +61,11 @@ export function detectRomType(buffer: Buffer, ext: string): RomType {
   return RomType.Generic;
 }
 
-export function fileToPatch(
-  buffer: Buffer,
-  fileName: string
-): Patch | undefined {
-  const ipsPatch = new IpsPatch(buffer, fileName);
+export function bufferToPatch(buffer: Buffer): Patch | undefined {
+  const ipsPatch = new IpsPatch(buffer);
   if (ipsPatch.validityScore > 0) return ipsPatch;
 
-  const upsPatch = new UpsPatch(buffer, fileName);
+  const upsPatch = new UpsPatch(buffer);
   if (upsPatch.validityScore > 0) return upsPatch;
 }
 
