@@ -56,7 +56,7 @@ export function HeaderEntry(props: HeaderEntryProps) {
 
   // TODO: possibly move right-side stacking to DataEntry component
   return (
-    <DataEntry label={props.label} space={9}>
+    <DataEntry label={props.label}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="mono1" color={props.color}>
           {props.children}

@@ -1,6 +1,10 @@
 import { useContext, useCallback } from "react";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import { TransitionGroup } from "react-transition-group";
+import Collapse from "@mui/material/Collapse";
 
 import { PatchContext } from "../../AppData";
 import { useUploads } from "../../file";
@@ -23,14 +27,18 @@ export default function PatchEditor(props: {}) {
 
   return (
     <>
-      <Stack spacing={2}>
-        {context.files.map((file, index) => (
-          <PatchCard
-            value={file}
-            key={index}
-            onRemove={() => context.remove(file)}
-          />
-        ))}
+      <Stack>
+        <List disablePadding>
+          <TransitionGroup>
+            {[...context.files.entries()].map(([id, file]) => (
+              <Collapse key={id}>
+                <ListItem disableGutters sx={{ pt: 0, pb: 2 }}>
+                  <PatchCard value={file} onRemove={() => context.remove(id)} />
+                </ListItem>
+              </Collapse>
+            ))}
+          </TransitionGroup>
+        </List>
         <Button variant="contained" color="secondary" onClick={triggerUpload}>
           Open Patch
         </Button>

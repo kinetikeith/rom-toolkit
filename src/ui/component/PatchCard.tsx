@@ -44,15 +44,9 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 function IpsContent(props: { value: IpsPatchInfo }) {
   return (
     <>
-      <TextEntry label="Blocks" space={5}>
-        {props.value.nChunks}
-      </TextEntry>
-      <TextEntry label="Begin Address" space={3}>
-        {props.value.begin || 0}
-      </TextEntry>
-      <TextEntry label="End Address" space={3}>
-        {props.value.end || 0}
-      </TextEntry>
+      <TextEntry label="Blocks">{props.value.nChunks}</TextEntry>
+      <TextEntry label="Begin Address">{props.value.begin || 0}</TextEntry>
+      <TextEntry label="End Address">{props.value.end || 0}</TextEntry>
     </>
   );
 }
@@ -75,39 +69,21 @@ function UpsContent(props: { value: UpsPatchInfo }) {
   return (
     <>
       <DataDivider>Patch File</DataDivider>
-      <TextEntry label="Size" space={2}>
-        {asBytes(props.value.patchSize)}
-      </TextEntry>
-      <TextEntry
-        label="Checksum"
-        space={2}
-        color={isPatchValid ? success : error}
-      >
+      <TextEntry label="Size">{asBytes(props.value.patchSize)}</TextEntry>
+      <TextEntry label="Checksum" color={isPatchValid ? success : error}>
         {asHexRaw(props.value.patchChecksum, 8)}
       </TextEntry>
-      <TextEntry label="Blocks" space={3}>
-        {props.value.nChunks}
-      </TextEntry>
+      <TextEntry label="Blocks">{props.value.nChunks}</TextEntry>
       <DataDivider>Input File</DataDivider>
-      <TextEntry
-        label="Size"
-        space={3}
-        color={isInputSizeValid ? success : error}
-      >
+      <TextEntry label="Size" color={isInputSizeValid ? success : error}>
         {asBytes(props.value.inputSize)}
       </TextEntry>
-      <TextEntry
-        label="Checksum"
-        space={2}
-        color={isInputCheckValid ? success : error}
-      >
+      <TextEntry label="Checksum" color={isInputCheckValid ? success : error}>
         {asHexRaw(props.value.inputChecksum, 8)}
       </TextEntry>
       <DataDivider>Output File</DataDivider>
-      <TextEntry label="Size" space={3}>
-        {asBytes(props.value.outputSize)}
-      </TextEntry>
-      <TextEntry label="Checksum" space={2}>
+      <TextEntry label="Size">{asBytes(props.value.outputSize)}</TextEntry>
+      <TextEntry label="Checksum">
         {asHexRaw(props.value.outputChecksum, 8)}
       </TextEntry>
     </>
@@ -164,7 +140,7 @@ export default function PatchCard(props: {
   const subComponent = loading ? <Skeleton>{value.name}</Skeleton> : value.name;
 
   return (
-    <Card variant="outlined">
+    <Card variant="outlined" sx={{ width: "100%" }}>
       <CardHeader
         title={titleComponent}
         subheader={subComponent}

@@ -19,9 +19,15 @@ export default function InfoDisplay(props: { unmount?: boolean }) {
       <TextEntry label="Size">{asBytes(romContext.buffer.length)}</TextEntry>
       <DataDivider>Checksums</DataDivider>
       <TextEntry label="CRC-32">{asHexRaw(romContext.crc32, 8)}</TextEntry>
-      <TextEntry label="MD5">{romContext.md5}</TextEntry>
-      <TextEntry label="SHA-1">{romContext.sha1}</TextEntry>
-      <TextEntry label="SHA-256">{romContext.sha256}</TextEntry>
+      <TextEntry label="MD5" variant="mono2">
+        {romContext.md5}
+      </TextEntry>
+      <TextEntry label="SHA-1" variant="mono2">
+        {romContext.sha1}
+      </TextEntry>
+      <TextEntry label="SHA-256" variant="mono2">
+        {romContext.sha256}
+      </TextEntry>
     </>
   );
 }

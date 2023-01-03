@@ -6,6 +6,7 @@ import Stack from "@mui/material/Stack";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import Fade from "@mui/material/Fade";
 
 import { RomContext, FileContext } from "../AppData";
 import RomOpener from "./RomOpener";
@@ -45,29 +46,25 @@ export default function PageContent(props: PageContentProps) {
     }
 
     content = (
-      <>
-        <Paper>{editorContent}</Paper>
-        <Button
-          variant={romContext.isModified ? "contained" : "outlined"}
-          onClick={() => {
-            fileContext.getEdited().then((file) => {
-              saveAs(file);
-            });
-          }}
-        >
-          Save
-        </Button>
-      </>
+      <Fade in={true}>
+        <Stack direction="column" spacing={2}>
+          <Paper>{editorContent}</Paper>
+          <Button
+            variant={romContext.isModified ? "contained" : "outlined"}
+            onClick={() => {
+              fileContext.getEdited().then((file) => {
+                saveAs(file);
+              });
+            }}
+          >
+            Save
+          </Button>
+        </Stack>
+      </Fade>
     );
   } else content = <RomOpener />;
 
-  return (
-    <ContentWrapper>
-      <Stack direction="column" spacing={2}>
-        {content}
-      </Stack>
-    </ContentWrapper>
-  );
+  return <ContentWrapper>{content}</ContentWrapper>;
 }
 
 function ContentWrapper(props: { children: any }) {
@@ -78,6 +75,8 @@ function ContentWrapper(props: { children: any }) {
       sx={{
         flex: 1,
         p: 3,
+        width: "500px",
+        maxWidth: "100vw",
         height: 0,
         overflow: "scroll",
         maskImage: `linear-gradient(to bottom, transparent, black ${mSize}, black calc(100% - ${mSize}), transparent)`,

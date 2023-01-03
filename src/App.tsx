@@ -3,10 +3,12 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
 
+import { max } from "lodash";
 import { Buffer } from "buffer";
 import { loadAsync as loadZipAsync } from "jszip";
 
 import { wrap as comlinkWrap } from "comlink";
+
 import { ChecksumInterface } from "./workers/checksum";
 
 import { parsePath } from "./utils";
@@ -74,7 +76,7 @@ export default function App(props: {}) {
     isModified: false,
   });
 
-  const [patchFiles, setPatchFiles] = useState<File[]>([]);
+  const [patchFiles, setPatchFiles] = useState<Map<number, File>>(new Map([]));
 
   const updateChecksums = (buffer: Buffer): void => {
     checksumThread.getCrc32(buffer).then(setCrc32);
@@ -184,13 +186,21 @@ export default function App(props: {}) {
   }, [setOpenedFile, fileData]);
 
   const addPatchFile = useCallback((file: File) => {
-    setPatchFiles((oldPatchFiles) => [...oldPatchFiles, file]);
+    setPatchFiles((oldPatchFiles) => {
+      const newPatchFiles = new Map(oldPatchFiles);
+      const lastId = max([...oldPatchFiles.keys()]) || 0;
+      console.log([...oldPatchFiles.keys()]);
+      newPatchFiles.set(lastId + 1, file);
+      return newPatchFiles;
+    });
   }, []);
 
-  const removePatchFile = useCallback((file: File) => {
-    setPatchFiles((oldPatchFiles) =>
-      oldPatchFiles.filter((oldFile) => oldFile !== file)
-    );
+  const removePatchFile = useCallback((id: number) => {
+    setPatchFiles((oldPatchFiles) => {
+      const newPatchFiles = new Map(oldPatchFiles);
+      newPatchFiles.delete(id);
+      return newPatchFiles;
+    });
   }, []);
 
   const theme = themeMap.get(romData.type) || defaultTheme;

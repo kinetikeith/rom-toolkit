@@ -49,13 +49,13 @@ const FileContext = createContext<FileContextType>({
 });
 
 interface PatchContextType {
-  files: File[];
+  files: Map<number, File>;
   add: (file: File) => void;
-  remove: (file: File) => void;
+  remove: (id: number) => void;
 }
 
 const PatchContext = createContext<PatchContextType>({
-  files: [],
+  files: new Map([]),
   add: () => {},
   remove: () => {},
 });
