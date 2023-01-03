@@ -189,7 +189,6 @@ export default function App(props: {}) {
     setPatchFiles((oldPatchFiles) => {
       const newPatchFiles = new Map(oldPatchFiles);
       const lastId = max([...oldPatchFiles.keys()]) || 0;
-      console.log([...oldPatchFiles.keys()]);
       newPatchFiles.set(lastId + 1, file);
       return newPatchFiles;
     });
