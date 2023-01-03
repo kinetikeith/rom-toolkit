@@ -25,10 +25,13 @@ export const defaultTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#78aba2",
+      main: "#fe7512",
     },
     secondary: {
-      main: "#ffe263",
+      main: "#577873",
+    },
+    background: {
+      default: "#e8ecee",
     },
   },
   typography: {
@@ -48,13 +51,13 @@ export const gbLightTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#79b372",
+      main: "#5a9354",
     },
     secondary: {
       main: "#be1959",
     },
     background: {
-      default: "#dfdfd1",
+      default: "#e5e5da",
     },
   },
 });
@@ -64,13 +67,13 @@ export const gbaLightTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#483c9f",
+      main: "#6e3ac9",
     },
     secondary: {
-      main: "#546f19",
+      main: "#617687",
     },
     background: {
-      default: "#b3b3b3",
+      default: "#e1e7ea",
     },
   },
 });
@@ -83,10 +86,10 @@ export const nesLightTheme = createTheme({
       main: "#ff3616",
     },
     secondary: {
-      main: "#323232",
+      main: "#474646",
     },
     background: {
-      default: "#c1c1c1",
+      default: "#dbdbdb",
     },
   },
 });
@@ -99,7 +102,7 @@ export const snesLightTheme = createTheme({
       main: "#7033cc",
     },
     secondary: {
-      main: "#727578",
+      main: "#555b60",
     },
     background: {
       default: "#f3eeff",
