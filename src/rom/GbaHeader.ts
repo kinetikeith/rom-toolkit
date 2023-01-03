@@ -1,6 +1,6 @@
 import { Buffer } from "buffer";
 
-import { trimNull, padNull } from "./utils";
+import { trimNull, padNull, mod } from "./utils";
 
 import destinations from "./data/gbaDestinations.json";
 
@@ -17,6 +17,9 @@ class GbaLogo {
   }
 }
 
+/* Implemented from specification found at
+ * https://problemkaputt.de/gbatek.htm#gbacartridges
+ */
 export default class GbaHeader {
   _buffer: Buffer;
   constructor(buffer: Buffer) {
@@ -29,6 +32,8 @@ export default class GbaHeader {
 
   get validity() {
     let score = 0;
+    if (this._buffer.length < 0xc0) return -1;
+    if (this._buffer.readUInt8(0xb2) === 0x96) score += 2;
     if (this._buffer.readUInt16BE(0xbe) === 0x0000) score += 2;
 
     const title = this.title;
@@ -96,7 +101,7 @@ export default class GbaHeader {
     return this._buffer.toString("ascii", 0xb0, 0xb2);
   }
   set makerCode(value: string) {
-    this._buffer.write(padNull(value, 2), 0xac, 2, "ascii");
+    this._buffer.write(padNull(value, 2), 0xb0, 2, "ascii");
   }
 
   get unitCode(): number {
@@ -125,5 +130,15 @@ export default class GbaHeader {
   }
   set headerChecksum(value: number) {
     this._buffer.writeUInt8(value, 0xbd);
+  }
+
+  get headerChecksumCalc(): number {
+    const checkBuffer = this._buffer.subarray(0xa0, 0xbd);
+    let checksum = 0x00;
+    for (const byte of checkBuffer.values()) {
+      checksum = mod(checksum - byte, 256);
+    }
+
+    return mod(checksum - 0x19, 256);
   }
 }

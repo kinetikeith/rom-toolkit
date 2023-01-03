@@ -51,6 +51,11 @@ function findHeader(buffer: Buffer): NesHeader {
   return new NesHeader(buffer, liBestLoc);
 }
 
+/* Implemented from specifications found at
+ * https://www.nesdev.org/wiki/Nintendo_header
+ * https://www.nesdev.org/wiki/INES
+ * https://www.nesdev.org/wiki/NES_2.0
+ */
 export default class NesHeader {
   _buffer: Buffer;
   readonly licenseLoc: number;
@@ -66,6 +71,7 @@ export default class NesHeader {
 
   get validity(): number {
     let score = 0;
+    if (this._buffer.length < 0xfffa) return -1;
     /* Check if the format is accurate */
     if (this.format === Format.INes) score += 3;
     else if (this.format === Format.INes2) score += 3;

@@ -27,6 +27,12 @@ export default function GbaHeaderEditor(props: {}) {
 
   const header = GbaHeader.fromRom(context.buffer);
 
+  const headerChecksum = header.headerChecksum;
+  const headerChecksumCalc = header.headerChecksumCalc;
+
+  const headerChecksumColor =
+    headerChecksum === headerChecksumCalc ? "success.main" : "error.main";
+
   return (
     <>
       <HeaderDivider>General</HeaderDivider>
@@ -63,8 +69,38 @@ export default function GbaHeaderEditor(props: {}) {
           closeField();
         }}
       />
-      <HeaderEntry label="Game Code">{header.gameCode}</HeaderEntry>
-      <HeaderEntry label="Maker Code">{header.makerCode}</HeaderEntry>
+      <HeaderEntry label="Game Code" onEdit={setFieldTo(Field.GameCode)}>
+        {header.gameCode}
+      </HeaderEntry>
+      <StringDialog
+        title="Edit Game Code"
+        open={field === Field.GameCode}
+        value={header.gameCode}
+        maxLength={4}
+        onCancel={closeField}
+        onSubmit={(value) => {
+          header.gameCode = value;
+
+          context.updateBuffer();
+          closeField();
+        }}
+      />
+      <HeaderEntry label="Maker Code" onEdit={setFieldTo(Field.Maker)}>
+        {header.makerCode}
+      </HeaderEntry>
+      <StringDialog
+        title="Edit Maker Code"
+        open={field === Field.Maker}
+        value={header.makerCode}
+        maxLength={4}
+        onCancel={closeField}
+        onSubmit={(value) => {
+          header.makerCode = value;
+
+          context.updateBuffer();
+          closeField();
+        }}
+      />
       <HeaderEntry label="Destination" onEdit={setFieldTo(Field.Destination)}>
         {destinationMap.get(header.destinationCode) || "Unknown"}
       </HeaderEntry>
@@ -82,8 +118,17 @@ export default function GbaHeaderEditor(props: {}) {
         }}
       />
       <HeaderDivider>Checksum</HeaderDivider>
-      <HeaderEntry label="Header Checksum">
-        {asHex(header.headerChecksum)}
+      <HeaderEntry
+        label="Header Checksum"
+        color={headerChecksumColor}
+        onUpdate={() => {
+          if (headerChecksumCalc !== headerChecksum) {
+            header.headerChecksum = headerChecksumCalc;
+            context.updateBuffer();
+          }
+        }}
+      >
+        {asHex(headerChecksum)}
       </HeaderEntry>
     </>
   );

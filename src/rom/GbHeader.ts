@@ -44,6 +44,9 @@ export {
   featureMap,
 };
 
+/* Implemented from specification found at
+ * https://problemkaputt.de/gbatek.htm#gbacartridges
+ */
 export default class GbHeader {
   _buffer: Buffer;
   constructor(buffer: Buffer) {
@@ -60,7 +63,7 @@ export default class GbHeader {
 
   get validity(): number {
     let score = 0;
-
+    if (this._buffer.length < 0x0150) return -1;
     if (this.logo.isValid) score += 4;
 
     return score;
@@ -216,10 +219,10 @@ export default class GbHeader {
   }
 
   get headerChecksumCalc(): number {
-    const headerBuffer = this._buffer.subarray(0x34, 0x4d);
+    const checkBuffer = this._buffer.subarray(0x34, 0x4d);
     let checksum = 0x00;
 
-    for (const byte of headerBuffer.values()) {
+    for (const byte of checkBuffer.values()) {
       checksum = mod(checksum - byte - 1, 256);
     }
 

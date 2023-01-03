@@ -60,6 +60,7 @@ function findHeader(buffer: Buffer): [Buffer, number, number] {
   return [headerBuffer, bestScoreObj.score, bestOffset];
 }
 
+// TODO: Normalize offset scoring to style used for NesHeader
 function calcHeaderOffsetScore(offset: number, buffer: Buffer): number {
   let score = 0;
   if (buffer.length < offset + 0xdf) return -100;
@@ -75,6 +76,11 @@ function calcHeaderOffsetScore(offset: number, buffer: Buffer): number {
   return score;
 }
 
+/* Implemented from specification found at
+ * https://www.nesdev.org/wiki/NES_2.0
+ *
+ * Please note: some of the information in the above article is bunk.
+ */
 export default class SnesHeader {
   _buffer: Buffer;
   readonly offset: number;
@@ -97,6 +103,7 @@ export default class SnesHeader {
 
   get validity(): number {
     let score = 0;
+    if (this._buffer.length < 0xe0) return -1;
 
     score += this.offsetScore;
 
