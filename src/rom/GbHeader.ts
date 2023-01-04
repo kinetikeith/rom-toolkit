@@ -63,7 +63,8 @@ export default class GbHeader {
 
   get validity(): number {
     let score = 0;
-    if (this._buffer.length < 0x0150) return -1;
+    if (this._buffer.length < 0x050) return -1;
+    if (this.headerChecksum === this.headerChecksumCalc) score += 4;
     if (this.logo.isValid) score += 4;
 
     return score;
