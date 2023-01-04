@@ -36,6 +36,8 @@ export default class GbaHeader {
     if (this._buffer.readUInt8(0xb2) === 0x96) score += 2;
     if (this._buffer.readUInt16BE(0xbe) === 0x0000) score += 2;
 
+    if (this.headerChecksum === this.headerChecksumCalc) score += 4;
+
     const title = this.title;
     const titleMatch = title.match(/\w+/);
     if (titleMatch?.[0] === title) {
