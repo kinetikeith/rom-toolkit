@@ -1,10 +1,11 @@
 import Box from "@mui/material/Box";
-import MemoryIcon from "@mui/icons-material/Memory";
+import SvgIcon from "@mui/material/SvgIcon";
+import { ReactComponent as Logo } from "./logo.svg";
 
 export default function PageHeader(props: {}) {
   return (
-    <Box p={4}>
-      <MemoryIcon sx={{ fontSize: 200 }} />
+    <Box p={6}>
+      <SvgIcon component={Logo} sx={{ fontSize: 200 }} inheritViewBox />
     </Box>
   );
 }

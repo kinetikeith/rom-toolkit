@@ -82,5 +82,9 @@
       "prettier --write"
     ]
   },
-  "homepage": "https://kinetikeith.github.io/rom-toolkit/"
+  "homepage": "https://kinetikeith.github.io/rom-toolkit/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kinetikeith/rom-toolkit"
+  }
 }
