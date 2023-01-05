@@ -30,7 +30,7 @@ export default function RomOpener(props: {}) {
 
   return (
     <Fade in={!loading}>
-      <Paper sx={{ p: 2 }}>
+      <Paper sx={{ p: 5 }}>
         <Stack
           direction="column"
           justifyContent="center"
