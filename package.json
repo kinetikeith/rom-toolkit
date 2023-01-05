@@ -81,5 +81,6 @@
     "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
       "prettier --write"
     ]
-  }
+  },
+  "homepage": "https://kinetikeith.github.io/rom-toolkit/"
 }
