@@ -7,6 +7,7 @@ import { asHexRaw, asBytes } from "../format";
 export default function InfoDisplay(props: { unmount?: boolean }) {
   const romContext = useContext(RomContext);
   const fileContext = useContext(FileContext);
+  // TODO: turn checksums to skeletons while loading
 
   if (props.unmount === true) {
     return null;
