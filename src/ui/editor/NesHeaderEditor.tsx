@@ -125,7 +125,16 @@ export default function NesHeaderEditor(props: {}) {
         }}
       />
       <HeaderDivider>Checksums</HeaderDivider>
-      <HeaderEntry label="Header Complement" color={headerChecksumColor}>
+      <HeaderEntry
+        label="Header Complement"
+        color={headerChecksumColor}
+        onUpdate={() => {
+          if (header.headerComplementCalc !== header.headerComplement) {
+            header.headerComplement = header.headerComplementCalc;
+            context.updateBuffer();
+          }
+        }}
+      >
         {asHex(header.headerComplement)}
       </HeaderEntry>
       <HeaderEntry label="CHR Checksum">

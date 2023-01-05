@@ -163,9 +163,15 @@ export default class NesHeader {
   get prgChecksum(): number {
     return this._licenseBuffer.readUInt16BE(0x10);
   }
+  set prgChecksum(value: number) {
+    this._licenseBuffer.writeUInt16BE(value, 0x10);
+  }
 
   get chrChecksum(): number {
     return this._licenseBuffer.readUInt16BE(0x12);
+  }
+  set chrChecksum(value: number) {
+    this._licenseBuffer.writeUInt16BE(value, 0x12);
   }
 
   get chrCode(): number {
@@ -177,9 +183,6 @@ export default class NesHeader {
     const otherMask = 0b11111000;
     this._licenseBuffer.writeUInt8(bits | (prev & otherMask), 0x14);
   }
-  get chrSize(): number[] | undefined {
-    return chrSizeMap.get(this.chrCode);
-  }
 
   get chrType(): ChrType {
     const value = (this._licenseBuffer.readUInt8(0x14) & 0b1000) >> 3;
@@ -190,7 +193,7 @@ export default class NesHeader {
   set chrType(value: ChrType) {
     const prev = this._licenseBuffer.readUInt8(0x14);
     const bit = value === ChrType.Rom ? 0b1000 : 0b0000;
-    const otherMask = 0b111101111;
+    const otherMask = 0b11110111;
     this._licenseBuffer.writeUInt8(bit | (prev & otherMask), 0x14);
   }
 
@@ -211,12 +214,24 @@ export default class NesHeader {
   get mapperCode(): number {
     return this._licenseBuffer.readUInt8(0x15) & 0b01111111;
   }
+  set mapperCode(value: number) {
+    const bits = value & 0b01111111;
+    const prev = this._licenseBuffer.readUInt8(0x15);
+    const otherMask = 0b10000000;
+    this._licenseBuffer.writeUInt8(bits | (prev & otherMask), 0x15);
+  }
 
   get mirroring(): Mirroring {
     const value = (this._licenseBuffer.readUInt8(0x15) & 0b10000000) >> 7;
 
     if (value) return Mirroring.Horizontal;
     else return Mirroring.Vertical;
+  }
+  set mirroring(value: Mirroring) {
+    const bit = value === Mirroring.Horizontal ? 0b10000000 : 0b00000000;
+    const prev = this._licenseBuffer.readUInt8(0x15);
+    const otherMask = 0b01111111;
+    this._licenseBuffer.writeUInt8(bit | (prev & otherMask), 0x15);
   }
 
   get titleEncoding(): Encoding {
@@ -240,6 +255,20 @@ export default class NesHeader {
 
   get headerComplement(): number {
     return this._licenseBuffer.readUInt8(0x19);
+  }
+  set headerComplement(value: number) {
+    this._licenseBuffer.writeUInt8(value, 0x19);
+  }
+
+  get headerComplementCalc(): number {
+    let checksum = 0x00;
+    const checkBuffer = this._licenseBuffer.subarray(0x12, 0x19);
+
+    for (const byte of checkBuffer.values()) {
+      checksum = mod(checksum + byte, 256);
+    }
+
+    return mod(256 - checksum, 256);
   }
 
   get headerChecksumCalc(): number {
