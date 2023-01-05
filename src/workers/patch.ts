@@ -1,4 +1,4 @@
-import { expose } from "comlink";
+import { expose, transfer } from "comlink";
 import { Buffer } from "buffer";
 
 import { bufferToPatch, PatchType } from "../rom/utils";
@@ -54,8 +54,11 @@ const patchInterface = {
     const romBuffer = Buffer.from(romArray);
     const patchBuffer = Buffer.from(patchArray);
     const patch = bufferToPatch(patchBuffer);
-    if (patch === undefined) return romBuffer;
-    else return patch.applyTo(romBuffer);
+    if (patch === undefined) return transfer(romBuffer, [romBuffer.buffer]);
+    else {
+      const newRomBuffer = patch.applyTo(romBuffer);
+      return transfer(newRomBuffer, [newRomBuffer.buffer]);
+    }
   },
 };
 
