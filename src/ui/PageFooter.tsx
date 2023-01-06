@@ -14,7 +14,7 @@ export default function PageFooter(props: {}) {
       <br />
       <GitHubIcon fontSize="inherit" />{" "}
       <Link color="secondary" href={packageInfo.repository.url}>
-        GitHub Repo
+        GitHub
       </Link>
     </Box>
   );
