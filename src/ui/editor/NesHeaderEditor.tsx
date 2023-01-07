@@ -4,6 +4,7 @@ import { RomContext } from "../../AppData";
 import NesHeader, {
   Format,
   ChrType,
+  Mirroring,
   chrSizeMap,
   prgSizeMap,
 } from "../../rom/NesHeader";
@@ -19,6 +20,7 @@ enum Field {
   ChrSize,
   ChrType,
   PrgSize,
+  Mirroring,
 }
 
 const formatLabelMap = new Map([
@@ -42,6 +44,11 @@ const chrSizeLabelMap = new Map<number, string>(
 const prgSizeLabelMap = new Map<number, string>(
   [...prgSizeMap.entries()].map(([key, value]) => [key, asBytes(value)])
 );
+
+const mirroringLabelMap = new Map([
+  [Mirroring.Horizontal, "Horizontal"],
+  [Mirroring.Vertical, "Vertical"],
+]);
 
 export default function NesHeaderEditor(props: {}) {
   const [field, setField] = useState<Field>(Field.None);
@@ -120,6 +127,24 @@ export default function NesHeaderEditor(props: {}) {
         onCancel={closeField}
         onSubmit={(value) => {
           header.prgCode = value;
+          context.updateBuffer();
+          closeField();
+        }}
+      />
+      <HeaderEntry
+        label="Nametable Mirroring"
+        onEdit={setFieldTo(Field.Mirroring)}
+      >
+        {mirroringLabelMap.get(header.mirroring)}
+      </HeaderEntry>
+      <ChoiceDialog
+        title="Edit Nametable Mirroring"
+        open={field === Field.Mirroring}
+        value={header.mirroring}
+        optionMap={mirroringLabelMap}
+        onCancel={closeField}
+        onSubmit={(value) => {
+          header.mirroring = value;
           context.updateBuffer();
           closeField();
         }}
