@@ -39,8 +39,8 @@ interface FileData {
 }
 
 interface RomData {
-  type: RomType;
   buffer: Buffer;
+  type: RomType;
   isModified: boolean;
 }
 
@@ -190,6 +190,20 @@ export default function App(props: {}) {
     await setOpenedFile(fileData.file);
   }, [setOpenedFile, fileData]);
 
+  const closeOpenedFile = useCallback(() => {
+    setFileData({
+      isOpen: false,
+      file: new File([], ""),
+      zipped: false,
+      zipName: "",
+    });
+    setRomData({
+      buffer: Buffer.alloc(0),
+      type: RomType.Generic,
+      isModified: false,
+    });
+  }, []);
+
   const addPatchFile = useCallback((file: File) => {
     setPatchFiles((oldPatchFiles) => {
       const newPatchFiles = new Map(oldPatchFiles);
@@ -229,11 +243,10 @@ export default function App(props: {}) {
       isOpen: fileData.isOpen,
       opened: fileData.file,
       setOpened: setOpenedFile,
-      resetOpened: resetOpenedFile,
 
       getEdited: getEditedFile,
     }),
-    [fileData, setOpenedFile, resetOpenedFile, getEditedFile]
+    [fileData, setOpenedFile, getEditedFile]
   );
 
   const patchContextValue = useMemo(
@@ -253,7 +266,10 @@ export default function App(props: {}) {
             <PageHeader />
             <PatchContext.Provider value={patchContextValue}>
               <FileContext.Provider value={fileContextValue}>
-                <PageContent />
+                <PageContent
+                  resetOpened={resetOpenedFile}
+                  closeOpened={closeOpenedFile}
+                />
               </FileContext.Provider>
             </PatchContext.Provider>
             <PageFooter />

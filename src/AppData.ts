@@ -34,7 +34,6 @@ interface FileContextType {
   isOpen: boolean;
   opened: File;
   setOpened: (file: File) => Promise<void>;
-  resetOpened: () => Promise<void>;
 
   getEdited: () => Promise<File>;
 }
@@ -43,7 +42,6 @@ const FileContext = createContext<FileContextType>({
   isOpen: false,
   opened: new File([], ""),
   setOpened: async () => {},
-  resetOpened: async () => {},
 
   getEdited: async () => new File([], ""),
 });
