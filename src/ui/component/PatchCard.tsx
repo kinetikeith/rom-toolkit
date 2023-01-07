@@ -99,7 +99,7 @@ export default function PatchCard(props: {
   onRemove: () => void;
 }) {
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [patchInfo, setPatchInfo] = useState<PatchInfo | undefined>(undefined);
+  const [patchInfo, setPatchInfo] = useState<PatchInfo | null>(null);
   const romContext = useContext(RomContext);
 
   const { value, onRemove } = props;
@@ -122,7 +122,8 @@ export default function PatchCard(props: {
 
   let content = null;
   let typeLabel = "";
-  const loading = patchInfo === undefined;
+  let isKnownFormat = true;
+  const loading = patchInfo === null;
 
   if (!loading) {
     if (patchInfo.type === PatchType.Ips) {
@@ -133,6 +134,7 @@ export default function PatchCard(props: {
       typeLabel = "UPS Patch";
     } else if (patchInfo.type === PatchType.Unknown) {
       typeLabel = "Unknown Format";
+      isKnownFormat = false;
     }
   }
 
@@ -151,7 +153,11 @@ export default function PatchCard(props: {
         }
       />
       <CardActions disableSpacing>
-        <Button onClick={apply} variant="contained" disabled={loading}>
+        <Button
+          onClick={apply}
+          variant="contained"
+          disabled={loading || !isKnownFormat}
+        >
           Apply
         </Button>
         {content === null ? null : (
