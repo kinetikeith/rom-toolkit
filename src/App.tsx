@@ -65,10 +65,10 @@ export default function App(props: {}) {
     zipName: "",
   });
 
-  const [crc32, setCrc32] = useState<number>(0);
-  const [md5, setMd5] = useState<string>("");
-  const [sha1, setSha1] = useState<string>("");
-  const [sha256, setSha256] = useState<string>("");
+  const [crc32, setCrc32] = useState<number | null>(null);
+  const [md5, setMd5] = useState<string | null>(null);
+  const [sha1, setSha1] = useState<string | null>(null);
+  const [sha256, setSha256] = useState<string | null>(null);
 
   const [romData, setRomData] = useState<RomData>({
     buffer: Buffer.alloc(0),
@@ -79,6 +79,11 @@ export default function App(props: {}) {
   const [patchFiles, setPatchFiles] = useState<Map<number, File>>(new Map([]));
 
   const updateChecksums = (buffer: Buffer): void => {
+    setCrc32(null);
+    setMd5(null);
+    setSha1(null);
+    setSha256(null);
+
     checksumThread.getCrc32(buffer).then(setCrc32);
     checksumThread.getMd5(buffer).then(setMd5);
     checksumThread.getSha1(buffer).then(setSha1);
