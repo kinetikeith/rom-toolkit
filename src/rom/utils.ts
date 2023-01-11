@@ -4,7 +4,7 @@ import { sortBy } from "lodash";
 
 import GbHeader from "./GbHeader";
 import GbaHeader from "./GbaHeader";
-import NesHeader from "./NesHeader";
+import NesRom from "./NesRom";
 import SnesHeader from "./SnesHeader";
 
 import IpsPatch from "./IpsPatch";
@@ -39,7 +39,7 @@ export function detectRomType(buffer: Buffer, ext: string): RomType {
       ext: [".gba"],
     },
     {
-      validity: NesHeader.fromRom(buffer).validity,
+      validity: NesRom.fromBuffer(buffer).validity,
       type: RomType.Nes,
       ext: [".nes"],
     },

@@ -1,7 +1,7 @@
-import NesHeader from "./NesHeader";
+import NesRom from "./NesRom";
 import SnesHeader from "./SnesHeader";
 import GbHeader from "./GbHeader";
 import GbaHeader from "./GbaHeader";
 import { detectRomType, RomType } from "./utils";
 
-export { NesHeader, SnesHeader, GbHeader, GbaHeader };
+export { NesRom, SnesHeader, GbHeader, GbaHeader };
