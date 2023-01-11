@@ -7,7 +7,7 @@ It is inspired by
 
 It currently supports header modification for:
 - Game Boy / Gameboy Color
-- Gameboy Advance
+- Game Boy Advance
 - Nintendo Entertainment System
 - Super Nintendo Entertainment System
 
