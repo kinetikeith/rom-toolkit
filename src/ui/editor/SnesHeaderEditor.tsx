@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useMemo, useContext } from "react";
 
 import SdCardIcon from "@mui/icons-material/SdCard";
 import MemoryIcon from "@mui/icons-material/Memory";
@@ -17,13 +17,13 @@ import RouterIcon from "@mui/icons-material/Router";
 import HelpIcon from "@mui/icons-material/Help";
 
 import { RomContext } from "../../AppData";
-import SnesHeader, {
+import SnesRom, {
   mapperMap,
   destinationMap,
   ramMap,
   romMap,
   featureMap,
-} from "../../rom/SnesHeader";
+} from "../../rom/SnesRom";
 import StringDialog from "../dialog/StringDialog";
 import IntDialog from "../dialog/IntDialog";
 import ChoiceDialog from "../dialog/ChoiceDialog";
@@ -104,8 +104,9 @@ function CartridgeFeatures(props: { code: number }) {
 export default function SnesHeaderEditor(props: {}) {
   const [field, setField] = useState<Field>(Field.None);
   const context = useContext(RomContext);
-
-  const header = SnesHeader.fromRom(context.buffer);
+  const buffer = context.buffer;
+  const rom = useMemo(() => SnesRom.fromBuffer(buffer), [buffer]);
+  const header = useMemo(() => rom.header, [rom]);
 
   const setFieldTo = (value: Field) => () => setField(value);
   const closeField = () => setField(Field.None);
@@ -146,7 +147,7 @@ export default function SnesHeaderEditor(props: {}) {
           closeField();
         }}
       />
-      <HeaderEntry label="Location">{asHex(header.offset, 6)}</HeaderEntry>
+      <HeaderEntry label="Location">{asHex(rom.headerOffset, 6)}</HeaderEntry>
       <HeaderDivider>Licensing</HeaderDivider>
       <HeaderEntry label="Maker Code" onEdit={setFieldTo(Field.MakerCode)}>
         {header.makerCode}

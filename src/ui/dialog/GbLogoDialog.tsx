@@ -5,7 +5,7 @@ import Stack from "@mui/material/Stack";
 
 import EditDialog, { ValueDialogProps } from "./EditDialog";
 import GbLogoCanvas from "../component/GbLogoCanvas";
-import GbLogo from "../../rom/GbLogo";
+import { Logo as GbLogo } from "../../rom/GbRom";
 
 interface GbLogoDialogProps extends ValueDialogProps<GbLogo> {}
 

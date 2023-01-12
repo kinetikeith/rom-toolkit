@@ -2,10 +2,10 @@ import { Buffer } from "buffer";
 
 import { sortBy } from "lodash";
 
-import GbHeader from "./GbHeader";
-import GbaHeader from "./GbaHeader";
+import GbRom from "./GbRom";
+import GbaRom from "./GbaRom";
 import NesRom from "./NesRom";
-import SnesHeader from "./SnesHeader";
+import SnesRom from "./SnesRom";
 
 import IpsPatch from "./IpsPatch";
 import UpsPatch from "./UpsPatch";
@@ -27,14 +27,14 @@ export enum PatchType {
 }
 
 export function detectRomType(buffer: Buffer, ext: string): RomType {
-  const headers = [
+  const roms = [
     {
-      validity: GbHeader.fromRom(buffer).validity,
+      validity: GbRom.fromBuffer(buffer).validity,
       type: RomType.Gb,
       ext: [".gb", ".gbc"],
     },
     {
-      validity: GbaHeader.fromRom(buffer).validity,
+      validity: GbaRom.fromBuffer(buffer).validity,
       type: RomType.Gba,
       ext: [".gba"],
     },
@@ -44,19 +44,19 @@ export function detectRomType(buffer: Buffer, ext: string): RomType {
       ext: [".nes"],
     },
     {
-      validity: SnesHeader.fromRom(buffer).validity,
+      validity: SnesRom.fromBuffer(buffer).validity,
       type: RomType.Snes,
       ext: [".sfc"],
     },
   ];
 
-  const bestHeader = sortBy(
-    headers,
-    (header) => header.validity + (header.ext.includes(ext) ? 2 : -2)
+  const bestRom = sortBy(
+    roms,
+    (rom) => rom.validity + (rom.ext.includes(ext) ? 2 : -2)
   ).pop();
 
-  if (bestHeader === undefined) return RomType.Generic;
-  else if (bestHeader.validity > 0) return bestHeader.type;
+  if (bestRom === undefined) return RomType.Generic;
+  else if (bestRom.validity > 0) return bestRom.type;
 
   return RomType.Generic;
 }

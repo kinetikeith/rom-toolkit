@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useMemo } from "react";
 
 import SdCardIcon from "@mui/icons-material/SdCard";
 import MemoryIcon from "@mui/icons-material/Memory";
@@ -12,12 +12,12 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import HelpIcon from "@mui/icons-material/Help";
 
 import { RomContext } from "../../AppData";
-import GbHeader, {
+import GbRom, {
   romMap,
   ramMap,
   destinationMap,
   featureMap,
-} from "../../rom/GbHeader";
+} from "../../rom/GbRom";
 import { HeaderEntry, HeaderDivider } from "./HeaderEditor";
 import { asHex, asBytes, asMemory } from "../format";
 
@@ -95,7 +95,9 @@ export default function GbHeaderEditor(props: {}) {
   const [field, setField] = useState<Field>(Field.None);
   const context = useContext(RomContext);
 
-  const header = GbHeader.fromRom(context.buffer);
+  const buffer = context.buffer;
+  const rom = useMemo(() => GbRom.fromBuffer(buffer), [buffer]);
+  const header = useMemo(() => rom.header, [rom]);
 
   const setFieldTo = (value: Field) => () => setField(value);
   const closeField = () => setField(Field.None);

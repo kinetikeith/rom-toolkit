@@ -10,7 +10,7 @@ const destinationMap = new Map<string, string>([
 
 export { destinationMap };
 
-class GbaLogo {
+class Logo {
   _buffer: Buffer;
   constructor(buffer: Buffer) {
     this._buffer = buffer;
@@ -20,14 +20,10 @@ class GbaLogo {
 /* Implemented from specification found at
  * https://problemkaputt.de/gbatek.htm#gbacartridges
  */
-export default class GbaHeader {
+class Header {
   _buffer: Buffer;
   constructor(buffer: Buffer) {
     this._buffer = buffer;
-  }
-
-  static fromRom(buffer: Buffer) {
-    return new GbaHeader(buffer.subarray(0x00, 0xc0));
   }
 
   get validity() {
@@ -57,10 +53,10 @@ export default class GbaHeader {
     return this._buffer.subarray(0x04, 0xa0);
   }
 
-  get logo(): GbaLogo {
-    return new GbaLogo(this._logoBuffer);
+  get logo(): Logo {
+    return new Logo(this._logoBuffer);
   }
-  set logo(logo: GbaLogo) {
+  set logo(logo: Logo) {
     logo._buffer.copy(this._logoBuffer);
   }
 
@@ -142,5 +138,25 @@ export default class GbaHeader {
     }
 
     return mod(checksum - 0x19, 256);
+  }
+}
+
+export default class Rom {
+  readonly _buffer: Buffer;
+
+  constructor(buffer: Buffer) {
+    this._buffer = buffer;
+  }
+
+  static fromBuffer(buffer: Buffer) {
+    return new Rom(buffer);
+  }
+
+  get header(): Header {
+    return new Header(this._buffer.subarray(0x00, 0xc0));
+  }
+
+  get validity(): number {
+    return this.header.validity;
   }
 }

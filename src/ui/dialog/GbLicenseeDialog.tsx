@@ -8,7 +8,7 @@ import ChoiceField from "../component/ChoiceField";
 import HexField from "../component/HexField";
 import StringField from "../component/StringField";
 import EditDialog, { ValueDialogProps } from "./EditDialog";
-import { licenseeMapOld, licenseeMapNew } from "../../rom/GbHeader";
+import { licenseeMapOld, licenseeMapNew } from "../../rom/GbRom";
 
 export interface GbLicensee {
   codeOld: number;

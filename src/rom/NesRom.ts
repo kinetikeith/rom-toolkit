@@ -280,7 +280,7 @@ class LicenseHeader {
   }
 }
 
-export default class NesRom {
+export default class Rom {
   readonly _buffer: Buffer;
   readonly licenseHeaderOffset: number;
   readonly hasINesHeader: boolean;
@@ -295,12 +295,12 @@ export default class NesRom {
     this.licenseHeaderOffset = licenseHeaderOffset;
   }
 
-  static fromBuffer(buffer: Buffer): NesRom {
+  static fromBuffer(buffer: Buffer): Rom {
     const hasINesHeader = checkForINesHeader(buffer);
     const rawBuffer = hasINesHeader ? buffer.subarray(16) : buffer;
     const licenseHeaderOffset = findLicenseHeaderOffset(rawBuffer);
 
-    return new NesRom(buffer, hasINesHeader, licenseHeaderOffset);
+    return new Rom(buffer, hasINesHeader, licenseHeaderOffset);
   }
 
   get validity(): number {

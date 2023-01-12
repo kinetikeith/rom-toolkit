@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, MouseEvent } from "react";
 import { useTheme } from "@mui/material/styles";
-import GbLogo from "../../rom/GbLogo";
+import { Logo as GbLogo } from "../../rom/GbRom";
 
 const WIDTH = 48;
 const HEIGHT = 8;

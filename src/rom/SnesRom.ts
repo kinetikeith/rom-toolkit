@@ -1,4 +1,5 @@
 import { Buffer } from "buffer";
+import { sortBy } from "lodash";
 
 import { trimNull, padNull, keysAsHex, range } from "./utils";
 
@@ -45,90 +46,64 @@ type FeatureCode = Feature | number;
 
 export { destinationMap, ramMap, romMap, mapperMap, featureMap };
 
-function findHeader(buffer: Buffer): [Buffer, number, number] {
-  const offsets = [0xff00, 0x7f00, 0x40ff00];
+function findHeaderOffset(buffer: Buffer): number {
+  const offsets = [0xffb0, 0x7fb0, 0x40ffb0];
 
-  const scoreObjs = offsets.map((offset) => ({
-    offset: offset,
-    score: calcHeaderOffsetScore(offset, buffer),
-  }));
-  scoreObjs.sort((scoreObj) => scoreObj.score);
-  const bestScoreObj = scoreObjs[scoreObjs.length - 1];
-  const bestOffset = bestScoreObj.offset;
-  const headerBuffer = buffer.subarray(bestOffset, bestOffset + 0xe0);
+  const objs = offsets.map((offset) => {
+    const headerBuffer = buffer.subarray(offset, offset + 48);
+    return {
+      offset: offset,
+      header: new Header(headerBuffer),
+    };
+  });
 
-  return [headerBuffer, bestScoreObj.score, bestOffset];
-}
-
-// TODO: Normalize offset scoring to style used for NesHeader
-function calcHeaderOffsetScore(offset: number, buffer: Buffer): number {
-  let score = 0;
-  if (buffer.length < offset + 0xdf) return -100;
-  const romCode = buffer.readUInt8(offset + 0xd7);
-  const ramCode = buffer.readUInt8(offset + 0xd8);
-  const version = buffer.readUInt8(offset + 0xdb);
-
-  // TODO: Add more testing methods
-  if (romCode >= 0x05 && romCode < 0x10) score += 2;
-  if (ramCode < 0x08) score += 1;
-  if (version > 10) score -= 2;
-
-  return score;
+  const best = sortBy(objs, (poss) => poss.header.validity).pop()?.offset;
+  return best === undefined ? 0 : best;
 }
 
 /* Implemented from specification found at
- * https://www.nesdev.org/wiki/NES_2.0
+ * https://sneslab.net/wiki/SNES_ROM_Header
  *
  * Please note: some of the information in the above article is bunk.
  */
-export default class SnesHeader {
+class Header {
   _buffer: Buffer;
-  readonly offset: number;
-  readonly offsetScore: number;
 
-  constructor(buffer: Buffer, offsetScore: number = 0, offset: number = 0) {
+  constructor(buffer: Buffer) {
     this._buffer = buffer;
-    this.offsetScore = offsetScore;
-    this.offset = offset;
-  }
-
-  static fromRom(buffer: Buffer): SnesHeader {
-    const [foundBuffer, offsetScore, offset] = findHeader(buffer);
-    return new SnesHeader(foundBuffer, offsetScore, offset);
-  }
-
-  copy(): SnesHeader {
-    return new SnesHeader(this._buffer, this.offsetScore);
   }
 
   get validity(): number {
     let score = 0;
-    if (this._buffer.length < 0xe0) return -1;
+    if (this._buffer.length < 48) return -1;
 
-    score += this.offsetScore;
+    if (this._buffer.readUInt8(0x0c) === 0x00) score += 1;
+    if (this._buffer.readUInt8(0x2a) === 0x33) score += 1;
+
+    if (mapperMap.has(this.mapperCode)) score += 1;
 
     return score;
   }
 
   get makerCode(): string {
-    return trimNull(this._buffer.toString("ascii", 0xb0, 0xb2));
+    return trimNull(this._buffer.toString("ascii", 0x00, 0x02));
   }
   set makerCode(value: string) {
-    this._buffer.write(padNull(value, 4), 0xb0, 2, "ascii");
+    this._buffer.write(padNull(value, 4), 0x00, 2, "ascii");
   }
 
   get gameCode(): string {
-    return trimNull(this._buffer.toString("ascii", 0xb2, 0xb6));
+    return trimNull(this._buffer.toString("ascii", 0x02, 0x06));
   }
   set gameCode(value: string) {
-    this._buffer.write(padNull(value, 4), 0xb2, 4, "ascii");
+    this._buffer.write(padNull(value, 4), 0x02, 4, "ascii");
   }
 
   get ramExpansionCode(): number {
-    return this._buffer.readUInt16LE(0xbd);
+    return this._buffer.readUInt16LE(0x0d);
   }
   set ramExpansionCode(value: number) {
-    this._buffer.writeUInt16LE(value, 0xbd);
+    this._buffer.writeUInt16LE(value, 0x0d);
   }
   get ramExpansionSize(): number {
     const ramExpansionCode = this.ramExpansionCode;
@@ -136,32 +111,32 @@ export default class SnesHeader {
   }
 
   get versionSpecial(): number {
-    return this._buffer.readUInt8(0xbe);
+    return this._buffer.readUInt8(0x0e);
   }
 
   get cartridgeSubCode(): number {
-    return this._buffer.readUInt8(0xbf);
+    return this._buffer.readUInt8(0x0f);
   }
   set cartridgeSubCode(value: number) {
-    this._buffer.writeUInt8(value, 0xbf);
+    this._buffer.writeUInt8(value, 0x0f);
   }
 
   get title(): string {
-    return this._buffer.toString("utf8", 0xc0, 0xd5).trimEnd();
+    return this._buffer.toString("utf8", 0x10, 0x25).trimEnd();
   }
   set title(value: string) {
-    this._buffer.write(value.padEnd(21, " "), 0xc0, 21, "utf8");
+    this._buffer.write(value.padEnd(21, " "), 0x10, 21, "utf8");
   }
 
   get mapModeCode(): number {
-    return this._buffer.readUInt8(0xd5);
+    return this._buffer.readUInt8(0x25);
   }
   get mapperCode(): number {
     return this.mapModeCode & 0x0f;
   }
   set mapperCode(value: number) {
     const code = this.mapModeCode;
-    this._buffer.writeUInt8((0xf0 & code) | (value & 0x0f), 0xd5);
+    this._buffer.writeUInt8((0xf0 & code) | (value & 0x0f), 0x25);
   }
   get mapper(): string | undefined {
     return mapperMap.get(this.mapperCode);
@@ -171,10 +146,10 @@ export default class SnesHeader {
   }
 
   get cartridgeCode(): number {
-    return this._buffer.readUInt8(0xd6);
+    return this._buffer.readUInt8(0x26);
   }
   set cartridgeCode(value: number) {
-    this._buffer.writeUInt8(value, 0xd6);
+    this._buffer.writeUInt8(value, 0x26);
   }
 
   get featureCode(): FeatureCode {
@@ -261,50 +236,75 @@ export default class SnesHeader {
   }
 
   get romCode(): number {
-    return this._buffer.readUInt8(0xd7);
+    return this._buffer.readUInt8(0x27);
   }
   set romCode(value: number) {
-    this._buffer.writeUInt8(value, 0xd7);
+    this._buffer.writeUInt8(value, 0x27);
   }
   get romSize(): number | undefined {
     return romMap.get(this.romCode);
   }
 
   get ramCode(): number {
-    return this._buffer.readUInt8(0xd8);
+    return this._buffer.readUInt8(0x28);
   }
   set ramCode(value: number) {
-    this._buffer.writeUInt8(value, 0xd8);
+    this._buffer.writeUInt8(value, 0x28);
   }
   get ramSize(): number | undefined {
     return ramMap.get(this.ramCode);
   }
 
   get destinationCode(): number {
-    return this._buffer.readUInt8(0xd9);
+    return this._buffer.readUInt8(0x29);
   }
   set destinationCode(value: number) {
-    this._buffer.writeUInt8(value, 0xd9);
+    this._buffer.writeUInt8(value, 0x29);
   }
   get destination(): string | undefined {
     return destinationMap.get(this.destinationCode);
   }
 
   get isNewFormat(): boolean {
-    return this._buffer.readUInt8(0xda) === 0x33;
+    return this._buffer.readUInt8(0x2a) === 0x33;
   }
 
   get version(): number {
-    return this._buffer.readUInt8(0xdb);
+    return this._buffer.readUInt8(0x2b);
   }
   set version(value: number) {
-    this._buffer.writeUInt8(value, 0xdb);
+    this._buffer.writeUInt8(value, 0x2b);
   }
 
   get globalChecksum(): number {
-    return this._buffer.readUInt16LE(0xdc);
+    return this._buffer.readUInt16LE(0x2c);
   }
   get globalComplement(): number {
-    return this._buffer.readUInt16LE(0xde);
+    return this._buffer.readUInt16LE(0x2e);
+  }
+}
+
+export default class Rom {
+  readonly _buffer: Buffer;
+  readonly headerOffset: number;
+
+  constructor(buffer: Buffer, headerOffset: number) {
+    this._buffer = buffer;
+    this.headerOffset = headerOffset;
+  }
+
+  static fromBuffer(buffer: Buffer) {
+    const headerOffset = findHeaderOffset(buffer);
+    return new Rom(buffer, headerOffset);
+  }
+
+  get validity(): number {
+    return this.header.validity;
+  }
+
+  get header(): Header {
+    const offset = this.headerOffset;
+    const headerBuffer = this._buffer.subarray(offset, offset + 48);
+    return new Header(headerBuffer);
   }
 }

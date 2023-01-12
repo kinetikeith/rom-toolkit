@@ -1,7 +1,7 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useMemo } from "react";
 
 import { RomContext } from "../../AppData";
-import GbaHeader, { destinationMap } from "../../rom/GbaHeader";
+import GbaRom, { destinationMap } from "../../rom/GbaRom";
 
 import { HeaderEntry, HeaderDivider } from "./HeaderEditor";
 import StringDialog from "../dialog/StringDialog";
@@ -22,10 +22,12 @@ export default function GbaHeaderEditor(props: {}) {
   const context = useContext(RomContext);
   const [field, setField] = useState<Field>(Field.None);
 
+  const buffer = context.buffer;
+  const rom = useMemo(() => GbaRom.fromBuffer(buffer), [buffer]);
+  const header = useMemo(() => rom.header, [rom]);
+
   const setFieldTo = (value: Field) => () => setField(value);
   const closeField = () => setField(Field.None);
-
-  const header = GbaHeader.fromRom(context.buffer);
 
   const headerChecksum = header.headerChecksum;
   const headerChecksumCalc = header.headerChecksumCalc;
