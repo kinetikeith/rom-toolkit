@@ -2,7 +2,7 @@ export function asHexRaw(value: number | undefined, width: number = 2): string {
   if (value === undefined) return "Unknown";
   if (Number.isNaN(value)) return "Unknown";
 
-  return value.toString(16).slice(-width).toUpperCase().padStart(width, "0");
+  return value.toString(16).slice(-width).padStart(width, "0");
 }
 
 export function asHex(value: number | undefined, width: number = 2) {
