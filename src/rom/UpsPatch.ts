@@ -1,6 +1,8 @@
 import { Buffer } from "buffer";
 import crc32 from "crc/crc32";
 
+import { readVUInt } from "./utils";
+
 interface Chunk {
   offset: number;
   length: number;
@@ -33,24 +35,6 @@ const upsErrHandler = (err: UpsError) => {
       break;
   }
 };
-
-function readVUInt(buffer: Buffer, offset: number): [number, number] {
-  let value = 0,
-    shift = 0;
-
-  while (true) {
-    const octet = buffer.readUInt8(offset);
-    offset += 1;
-    if (octet & 0x80) {
-      value += (octet & 0x7f) << shift;
-      break;
-    }
-    value += (octet | 0x80) << shift;
-    shift += 7;
-  }
-
-  return [value, offset];
-}
 
 export default class UpsPatch {
   _buffer: Buffer;

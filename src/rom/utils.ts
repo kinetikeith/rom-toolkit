@@ -9,8 +9,9 @@ import SnesRom from "./SnesRom";
 
 import IpsPatch from "./IpsPatch";
 import UpsPatch from "./UpsPatch";
+import BpsPatch from "./BpsPatch";
 
-export type Patch = IpsPatch | UpsPatch;
+export type Patch = IpsPatch | UpsPatch | BpsPatch;
 
 export enum RomType {
   Generic = -1,
@@ -24,6 +25,7 @@ export enum PatchType {
   Unknown = -1,
   Ips,
   Ups,
+  Bps,
 }
 
 export function detectRomType(buffer: Buffer, ext: string): RomType {
@@ -67,6 +69,9 @@ export function bufferToPatch(buffer: Buffer): Patch | undefined {
 
   const upsPatch = new UpsPatch(buffer);
   if (upsPatch.validityScore > 0) return upsPatch;
+
+  const bpsPatch = new BpsPatch(buffer);
+  if (bpsPatch.validityScore > 0) return bpsPatch;
 }
 
 export function trim(value: string, char: string) {
@@ -111,4 +116,28 @@ export function keysAsHex<T>(obj: { [key: string]: T }) {
   }
 
   return map;
+}
+
+export function readVUInt(buffer: Buffer, offset: number): [number, number] {
+  let value = 0,
+    shift = 0;
+
+  while (true) {
+    const octet = buffer.readUInt8(offset);
+    offset += 1;
+    if (octet & 0x80) {
+      value += (octet & 0x7f) << shift;
+      break;
+    }
+    value += (octet | 0x80) << shift;
+    shift += 7;
+  }
+
+  return [value, offset];
+}
+
+export function readVInt(buffer: Buffer, offset: number): [number, number] {
+  let value;
+  [value, offset] = readVUInt(buffer, offset);
+  return [(value & 1 ? -1 : +1) * (value >> 1), offset];
 }
