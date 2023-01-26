@@ -11,7 +11,7 @@ import { useUploads } from "../../file";
 
 import PatchCard from "../component/PatchCard";
 
-const patchExts = [".ips", ".ups"];
+const patchExts = [".ips", ".ups", ".bps"];
 
 export default function PatchEditor(props: {}) {
   const context = useContext(PatchContext);

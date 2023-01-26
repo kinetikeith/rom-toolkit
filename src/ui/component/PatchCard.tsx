@@ -23,12 +23,16 @@ import {
   PatchInfo,
   IpsPatchInfo,
   UpsPatchInfo,
+  BpsPatchInfo,
 } from "../../workers/patch";
 import { TextEntry, DataDivider } from "./data";
 
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
 }
+
+const success = "success.dark";
+const error = "error.dark";
 
 const ExpandMore = styled((props: ExpandMoreProps) => {
   const { expand, ...other } = props;
@@ -54,17 +58,10 @@ function IpsContent(props: { value: IpsPatchInfo }) {
 function UpsContent(props: { value: UpsPatchInfo }) {
   const context = useContext(RomContext);
 
-  const success = "success.dark";
-  const error = "error.dark";
-
-  const patchCheck = props.value.patchChecksum;
-  const isPatchValid = patchCheck === props.value.patchChecksumCalc;
-
-  const inputCheck = props.value.inputChecksum;
-  const isInputCheckValid = inputCheck === context.crc32;
-
-  const inputSize = props.value.inputSize;
-  const isInputSizeValid = inputSize === context.buffer.length;
+  const isPatchValid =
+    props.value.patchChecksum === props.value.patchChecksumCalc;
+  const isInputCheckValid = props.value.inputChecksum === context.crc32;
+  const isInputSizeValid = props.value.inputSize === context.buffer.length;
 
   return (
     <>
@@ -85,6 +82,38 @@ function UpsContent(props: { value: UpsPatchInfo }) {
       <TextEntry label="Size">{asBytes(props.value.outputSize)}</TextEntry>
       <TextEntry label="Checksum">
         {asHexRaw(props.value.outputChecksum, 8)}
+      </TextEntry>
+    </>
+  );
+}
+
+function BpsContent(props: { value: BpsPatchInfo }) {
+  const context = useContext(RomContext);
+
+  const isPatchValid =
+    props.value.patchChecksum === props.value.patchChecksumCalc;
+  const isSourceCheckValid = props.value.sourceChecksum === context.crc32;
+  const isSourceSizeValid = props.value.sourceSize === context.buffer.length;
+
+  return (
+    <>
+      <DataDivider>Patch File</DataDivider>
+      <TextEntry label="Size">{asBytes(props.value.patchSize)}</TextEntry>
+      <TextEntry label="Checksum" color={isPatchValid ? success : error}>
+        {asHexRaw(props.value.patchChecksum, 8)}
+      </TextEntry>
+      <TextEntry label="Actions">{props.value.nActions}</TextEntry>
+      <DataDivider>Input File</DataDivider>
+      <TextEntry label="Size" color={isSourceSizeValid ? success : error}>
+        {asBytes(props.value.sourceSize)}
+      </TextEntry>
+      <TextEntry label="Checksum" color={isSourceCheckValid ? success : error}>
+        {asHexRaw(props.value.sourceChecksum, 8)}
+      </TextEntry>
+      <DataDivider>Output File</DataDivider>
+      <TextEntry label="Size">{asBytes(props.value.targetSize)}</TextEntry>
+      <TextEntry label="Checksum">
+        {asHexRaw(props.value.targetChecksum, 8)}
       </TextEntry>
     </>
   );
@@ -132,6 +161,9 @@ export default function PatchCard(props: {
     } else if (patchInfo.type === PatchType.Ups) {
       content = <UpsContent value={patchInfo} />;
       typeLabel = "UPS Patch";
+    } else if (patchInfo.type === PatchType.Bps) {
+      content = <BpsContent value={patchInfo} />;
+      typeLabel = "BPS Patch";
     } else if (patchInfo.type === PatchType.Unknown) {
       typeLabel = "Unknown Format";
       isKnownFormat = false;
