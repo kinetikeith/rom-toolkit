@@ -11,8 +11,8 @@ interface Chunk {
 
 enum UpsError {
   InvalidPatchChecksum,
-  InvalidInputChecksum,
   InvalidInputSize,
+  InvalidInputChecksum,
   InvalidOutputChecksum,
   WritePastEof,
 }
@@ -21,11 +21,14 @@ type UpsErrorHandler = (err: UpsError) => boolean | void;
 
 const upsErrHandler = (err: UpsError) => {
   switch (err) {
-    case UpsError.InvalidInputChecksum:
-      console.warn("Input file has wrong checksum");
+    case UpsError.InvalidPatchChecksum:
+      console.warn("Patch file has wrong checksum");
       break;
     case UpsError.InvalidInputSize:
       console.warn("Input file has wrong size");
+      break;
+    case UpsError.InvalidInputChecksum:
+      console.warn("Input file has wrong checksum");
       break;
     case UpsError.InvalidOutputChecksum:
       console.warn("Output file has wrong checksum");
