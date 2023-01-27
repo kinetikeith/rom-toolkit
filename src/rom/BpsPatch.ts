@@ -43,6 +43,33 @@ type AnyAction =
   | SourceCopyAction
   | TargetCopyAction;
 
+enum BpsError {
+  InvalidPatchChecksum,
+  InvalidSourceSize,
+  InvalidSourceChecksum,
+  InvalidTargetChecksum,
+  WritePastEof,
+}
+
+type BpsErrorHandler = (err: BpsError) => boolean | void;
+
+const bpsErrHandler = (err: BpsError) => {
+  switch (err) {
+    case BpsError.InvalidSourceSize:
+      console.warn("Source file has wrong size");
+      break;
+    case BpsError.InvalidSourceChecksum:
+      console.warn("Source file has wrong checksum");
+      break;
+    case BpsError.InvalidTargetChecksum:
+      console.warn("Target file has wrong checksum");
+      break;
+    case BpsError.WritePastEof:
+      console.warn("Attempted to write past end of target file");
+      break;
+  }
+};
+
 export default class BpsPatch {
   _buffer: Buffer;
 
@@ -195,13 +222,30 @@ export default class BpsPatch {
     };
   }
 
-  applyTo(sourceBuffer: Buffer) {
-    // TODO: Do safety checks, like UPS
+  applyTo(sourceBuffer: Buffer, errFunc: BpsErrorHandler = bpsErrHandler) {
     const targetSize = this.targetSize;
     const targetBuffer = Buffer.alloc(targetSize);
 
+    if (this.patchChecksum !== this.patchChecksumCalc) {
+      if (errFunc(BpsError.InvalidPatchChecksum)) return targetBuffer;
+    }
+
+    if (this.sourceSize !== sourceBuffer.length) {
+      if (errFunc(BpsError.InvalidSourceSize)) return targetBuffer;
+    }
+
+    const sourceChecksumCalc = crc32(sourceBuffer);
+    if (this.sourceChecksum !== sourceChecksumCalc) {
+      if (errFunc(BpsError.InvalidSourceChecksum)) return targetBuffer;
+    }
+
     for (const action of this.actions) {
+      // TODO: Fail on out-of-bounds access on both source and target buffers
       const { writeBegin, writeEnd } = action;
+      if (writeEnd > targetSize) {
+        if (errFunc(BpsError.WritePastEof)) return targetBuffer;
+      }
+
       if (action.command === Command.SourceRead) {
         sourceBuffer.copy(targetBuffer, writeBegin, writeBegin, writeEnd);
       } else if (action.command === Command.TargetRead) {
@@ -216,10 +260,16 @@ export default class BpsPatch {
       } else if (action.command === Command.TargetCopy) {
         let writeOffset = writeBegin;
         for (let i = action.readBegin; i < action.readEnd; i++) {
-          targetBuffer.writeUInt8(targetBuffer.readUInt8(i), writeOffset);
+          const byte = targetBuffer.readUInt8(i);
+          targetBuffer.writeUInt8(byte, writeOffset);
           writeOffset++;
         }
       }
+    }
+
+    const targetChecksumCalc = crc32(targetBuffer);
+    if (this.targetChecksum !== targetChecksumCalc) {
+      if (errFunc(BpsError.InvalidTargetChecksum)) return targetBuffer;
     }
 
     return targetBuffer;
