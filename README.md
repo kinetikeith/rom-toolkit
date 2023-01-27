@@ -11,10 +11,10 @@ It currently supports header modification for:
 - Nintendo Entertainment System
 - Super Nintendo Entertainment System
 
-It also supports patching with these formats:
+These ROMs (and actually any other type of file) may be patched using the
+following formats:
 - IPS
 - UPS
-
-(You can patch any file type, not just ROM types mentioned above)
+- BPS
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
