@@ -1,6 +1,6 @@
 {
   "name": "rom-toolkit",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "private": true,
   "dependencies": {
     "@fontsource/roboto": "^4.5.8",
