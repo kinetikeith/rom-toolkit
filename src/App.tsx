@@ -6,8 +6,9 @@ import Stack from "@mui/material/Stack";
 import { max } from "lodash";
 import { Buffer } from "buffer";
 import { loadAsync as loadZipAsync } from "jszip";
-
 import { wrap as comlinkWrap } from "comlink";
+import { Rom, RomType } from "rommage";
+import { BaseRom } from "rommage/BaseRom";
 
 import { ChecksumInterface } from "./workers/checksum";
 
@@ -18,7 +19,6 @@ import {
   PatchContext,
   BufferUpdateArg,
 } from "./AppData";
-import { detectRomType, RomType } from "./rom/utils";
 
 import PageHeader from "./ui/PageHeader";
 import PageContent from "./ui/PageContent";
@@ -40,7 +40,7 @@ interface FileData {
 
 interface RomData {
   buffer: Buffer;
-  type: RomType;
+  rom: BaseRom;
   isModified: boolean;
 }
 
@@ -57,6 +57,8 @@ const checksumThread = comlinkWrap<ChecksumInterface>(
   new Worker(new URL("./workers/checksum", import.meta.url))
 );
 
+const emptyBuffer = Buffer.alloc(0);
+
 export default function App(props: {}) {
   const [fileData, setFileData] = useState<FileData>({
     isOpen: false,
@@ -71,8 +73,8 @@ export default function App(props: {}) {
   const [sha256, setSha256] = useState<string | null>(null);
 
   const [romData, setRomData] = useState<RomData>({
-    buffer: Buffer.alloc(0),
-    type: RomType.Generic,
+    buffer: emptyBuffer,
+    rom: Rom.fromBuffer(emptyBuffer),
     isModified: false,
   });
 
@@ -167,8 +169,8 @@ export default function App(props: {}) {
 
     setRomData({
       buffer: buffer,
+      rom: Rom.fromBuffer(buffer),
       isModified: false,
-      type: detectRomType(buffer, ext),
     });
 
     updateChecksums(buffer);
@@ -198,8 +200,8 @@ export default function App(props: {}) {
       zipName: "",
     });
     setRomData({
-      buffer: Buffer.alloc(0),
-      type: RomType.Generic,
+      buffer: emptyBuffer,
+      rom: Rom.fromBuffer(emptyBuffer),
       isModified: false,
     });
   }, []);
@@ -221,11 +223,11 @@ export default function App(props: {}) {
     });
   }, []);
 
-  const theme = themeMap.get(romData.type) || defaultTheme;
+  const theme = themeMap.get(romData.rom.type) || defaultTheme;
 
   const romContextValue = useMemo(
     () => ({
-      type: romData.type,
+      rom: Rom.fromBuffer(romData.buffer),
       buffer: romData.buffer,
       updateBuffer: updateRomBuffer,
       isModified: romData.isModified,

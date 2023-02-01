@@ -17,7 +17,7 @@ import { Buffer } from "buffer";
 
 import { RomContext } from "../../AppData";
 import { asBytes, asHexRaw } from "../format";
-import { PatchType } from "../../rom/utils";
+import { PatchType } from "rommage/BasePatch";
 import {
   PatchInterface,
   PatchInfo,

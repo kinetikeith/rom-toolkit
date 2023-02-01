@@ -1,7 +1,7 @@
 import { useState, useContext, useMemo } from "react";
+import { GbaRom, destinationMap } from "rommage/GbaRom";
 
 import { RomContext } from "../../AppData";
-import GbaRom, { destinationMap } from "../../rom/GbaRom";
 
 import { HeaderEntry, HeaderDivider } from "./HeaderEditor";
 import StringDialog from "../dialog/StringDialog";

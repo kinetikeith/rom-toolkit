@@ -1,14 +1,14 @@
 import { createContext } from "react";
 import { Buffer } from "buffer";
-
-import { RomType } from "./rom/utils";
+import { Rom } from "rommage";
+import { BaseRom } from "rommage/BaseRom";
 
 type BufferUpdateFunc = (oldBuffer: Buffer) => Buffer | void;
 export type BufferUpdateArg = BufferUpdateFunc | Buffer;
 
 export interface RomContextType {
-  type: RomType;
   buffer: Buffer;
+  rom: BaseRom;
   updateBuffer: (arg?: BufferUpdateArg) => void;
   isModified: boolean;
 
@@ -18,9 +18,11 @@ export interface RomContextType {
   sha256: string | null;
 }
 
+const emptyBuffer = Buffer.alloc(0);
+
 const RomContext = createContext<RomContextType>({
-  type: RomType.Generic,
-  buffer: Buffer.alloc(0),
+  buffer: emptyBuffer,
+  rom: Rom.fromBuffer(emptyBuffer),
   updateBuffer: () => {},
   isModified: false,
 

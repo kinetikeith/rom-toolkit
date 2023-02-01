@@ -11,13 +11,15 @@ import DeveloperBoardIcon from "@mui/icons-material/DeveloperBoard";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import HelpIcon from "@mui/icons-material/Help";
 
-import { RomContext } from "../../AppData";
-import GbRom, {
+import {
+  GbRom,
   romMap,
   ramMap,
   destinationMap,
   featureMap,
-} from "../../rom/GbRom";
+} from "rommage/GbRom";
+
+import { RomContext } from "../../AppData";
 import { HeaderEntry, HeaderDivider } from "./HeaderEditor";
 import { asHex, asBytes, asMemory } from "../format";
 

@@ -1,5 +1,6 @@
 import { useContext, useState, useRef } from "react";
 import { saveAs } from "file-saver";
+import { RomType } from "rommage";
 
 import { useTheme } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
@@ -24,8 +25,6 @@ import NesContent from "./content/NesContent";
 import SnesContent from "./content/SnesContent";
 import GenericContent from "./content/GenericContent";
 
-import { RomType } from "../rom/utils";
-
 interface PageContentProps {
   resetOpened: () => void;
   closeOpened: () => void;
@@ -44,7 +43,7 @@ export default function PageContent(props: PageContentProps) {
   /* Render tab */
   if (fileContext.isOpen) {
     let editorContent = null;
-    switch (romContext.type) {
+    switch (romContext.rom.type) {
       case RomType.Gb:
         editorContent = <GbContent />;
         break;

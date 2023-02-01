@@ -1,7 +1,7 @@
 import { expose } from "comlink";
 import { Buffer } from "buffer";
 
-import crc32 from "crc/crc32";
+import crc32 from "crc/calculators/crc32";
 import md5 from "md5";
 import jsSHA from "jssha";
 

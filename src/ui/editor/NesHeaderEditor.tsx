@@ -1,13 +1,14 @@
 import { useState, useContext, useMemo } from "react";
-
-import { RomContext } from "../../AppData";
-import NesRom, {
+import {
+  NesRom,
   Format,
   ChrType,
   Mirroring,
   chrSizeMap,
   prgSizeMap,
-} from "../../rom/NesRom";
+} from "rommage/NesRom";
+
+import { RomContext } from "../../AppData";
 
 import { HeaderEntry, HeaderDivider } from "./HeaderEditor";
 import { asHex, asBytes } from "../format";

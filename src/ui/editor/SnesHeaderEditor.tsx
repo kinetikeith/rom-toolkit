@@ -1,5 +1,14 @@
 import { useState, useMemo, useContext } from "react";
 
+import {
+  SnesRom,
+  mapperMap,
+  destinationMap,
+  ramMap,
+  romMap,
+  featureMap,
+} from "rommage/SnesRom";
+
 import SdCardIcon from "@mui/icons-material/SdCard";
 import MemoryIcon from "@mui/icons-material/Memory";
 import BatteryIcon from "@mui/icons-material/Battery5Bar";
@@ -17,13 +26,6 @@ import RouterIcon from "@mui/icons-material/Router";
 import HelpIcon from "@mui/icons-material/Help";
 
 import { RomContext } from "../../AppData";
-import SnesRom, {
-  mapperMap,
-  destinationMap,
-  ramMap,
-  romMap,
-  featureMap,
-} from "../../rom/SnesRom";
 import StringDialog from "../dialog/StringDialog";
 import IntDialog from "../dialog/IntDialog";
 import ChoiceDialog from "../dialog/ChoiceDialog";

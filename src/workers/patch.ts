@@ -1,10 +1,11 @@
 import { expose, transfer } from "comlink";
 import { Buffer } from "buffer";
 
-import { bufferToPatch, PatchType } from "../rom/utils";
-import IpsPatch from "../rom/IpsPatch";
-import UpsPatch from "../rom/UpsPatch";
-import BpsPatch from "../rom/BpsPatch";
+import { Patch } from "rommage/Patch";
+import { PatchType } from "rommage/BasePatch";
+import { IpsPatch } from "rommage/IpsPatch";
+import { UpsPatch } from "rommage/UpsPatch";
+import { BpsPatch } from "rommage/BpsPatch";
 
 interface UnknownPatchInfo {
   type: PatchType.Unknown;
@@ -58,7 +59,7 @@ export type PatchInfo =
 const patchInterface = {
   getInfo(patchArray: Uint8Array): PatchInfo {
     const patchBuffer = Buffer.from(patchArray);
-    const patch = bufferToPatch(patchBuffer);
+    const patch = Patch.fromBuffer(patchBuffer);
     if (patch instanceof IpsPatch)
       return {
         type: PatchType.Ips,
@@ -79,8 +80,9 @@ const patchInterface = {
   apply(romArray: Uint8Array, patchArray: Uint8Array): Buffer {
     const romBuffer = Buffer.from(romArray);
     const patchBuffer = Buffer.from(patchArray);
-    const patch = bufferToPatch(patchBuffer);
-    if (patch === undefined) return transfer(romBuffer, [romBuffer.buffer]);
+    const patch = Patch.fromBuffer(patchBuffer);
+    if (patch.type === PatchType.Unknown)
+      return transfer(romBuffer, [romBuffer.buffer]);
     else {
       const newRomBuffer = patch.applyTo(romBuffer);
       return transfer(newRomBuffer, [newRomBuffer.buffer]);

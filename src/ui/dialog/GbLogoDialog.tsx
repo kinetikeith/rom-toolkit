@@ -5,13 +5,13 @@ import Stack from "@mui/material/Stack";
 
 import EditDialog, { ValueDialogProps } from "./EditDialog";
 import GbLogoCanvas from "../component/GbLogoCanvas";
-import { Logo as GbLogo } from "../../rom/GbRom";
+import { Logo as GbLogo } from "rommage/GbRom";
 
 interface GbLogoDialogProps extends ValueDialogProps<GbLogo> {}
 
 export default function GbLogoDialog(props: GbLogoDialogProps) {
   const [value, setValue] = useState<{ logo: GbLogo }>({
-    logo: props.value.copy(),
+    logo: props.value,
   });
 
   const updateLogo = (logo?: GbLogo) => {
@@ -45,7 +45,7 @@ export default function GbLogoDialog(props: GbLogoDialogProps) {
         props.onSubmit(value.logo);
       }}
       onCancel={() => {
-        updateLogo(props.value.copy());
+        updateLogo(props.value);
         props.onCancel();
       }}
     >

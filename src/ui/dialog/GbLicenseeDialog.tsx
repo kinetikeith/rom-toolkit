@@ -8,7 +8,7 @@ import ChoiceField from "../component/ChoiceField";
 import HexField from "../component/HexField";
 import StringField from "../component/StringField";
 import EditDialog, { ValueDialogProps } from "./EditDialog";
-import { licenseeMapOld, licenseeMapNew } from "../../rom/GbRom";
+import { licenseeOldMap, licenseeNewMap } from "rommage/GbRom";
 
 export interface GbLicensee {
   codeOld: number;
@@ -38,8 +38,8 @@ export default function GbLicenseeDialog(props: GbLicenseeDialogProps) {
   const isCustom =
     attemptCustom ||
     (isOld
-      ? !licenseeMapOld.has(value.codeOld)
-      : !licenseeMapNew.has(value.codeNew));
+      ? !licenseeOldMap.has(value.codeOld)
+      : !licenseeNewMap.has(value.codeNew));
 
   let choiceComponent = null;
   if (isCustom) {
@@ -49,7 +49,7 @@ export default function GbLicenseeDialog(props: GbLicenseeDialogProps) {
           value={value.codeOld}
           valid={true}
           nChars={2}
-          onUpdate={(value) => {
+          onUpdate={(value: number) => {
             setValue({ codeOld: value, codeNew: "00" });
           }}
         />
@@ -60,7 +60,7 @@ export default function GbLicenseeDialog(props: GbLicenseeDialogProps) {
           value={value.codeNew}
           valid={true}
           maxLength={2}
-          onUpdate={(value) => {
+          onUpdate={(value: string) => {
             setValue({ codeOld: 0x33, codeNew: value });
           }}
         />
@@ -70,9 +70,9 @@ export default function GbLicenseeDialog(props: GbLicenseeDialogProps) {
       choiceComponent = (
         <ChoiceField
           value={value.codeOld}
-          optionMap={licenseeMapOld}
+          optionMap={licenseeOldMap}
           valid={valid}
-          onUpdate={(value) => {
+          onUpdate={(value: number) => {
             setValue({ codeOld: value, codeNew: "00" });
           }}
         />
@@ -81,9 +81,9 @@ export default function GbLicenseeDialog(props: GbLicenseeDialogProps) {
       choiceComponent = (
         <ChoiceField
           value={value.codeNew}
-          optionMap={licenseeMapNew}
+          optionMap={licenseeNewMap}
           valid={valid}
-          onUpdate={(value) => {
+          onUpdate={(value: string) => {
             setValue({ codeOld: 0x33, codeNew: value });
           }}
         />
