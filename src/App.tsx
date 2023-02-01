@@ -185,7 +185,7 @@ export default function App(props: {}) {
         fileData.file.name
       );
     }
-    return fileData.file;
+    return new File([romData.buffer], fileData.file.name);
   }, [fileData, romData]);
 
   const resetOpenedFile = useCallback(async () => {
