@@ -24,7 +24,7 @@ jobs:
     - name: Archive production artifact
       uses: actions/upload-pages-artifact@v1
       with:
-        path: build
+        path: dist
   deploy:
     needs: build
     runs-on: ubuntu-latest
