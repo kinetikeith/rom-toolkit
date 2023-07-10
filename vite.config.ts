@@ -11,7 +11,7 @@ export default defineConfig({
     svgr()
   ],
   define: {
-    APP_VERSION: JSON.stringify(packageInfo.version),
-    APP_REPO_URL: JSON.stringify(packageInfo.repository.url)
+    "import.meta.env.APP_VERSION": JSON.stringify(packageInfo.version),
+    "import.meta.env.APP_REPO_URL": JSON.stringify(packageInfo.repository.url)
   }
 })

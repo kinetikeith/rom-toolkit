@@ -17,7 +17,7 @@ const modeLabels = new Map([
   [Mode.Info, "Info"],
 ]);
 
-export default function GbaContent(props: {}) {
+export default function GbaContent() {
   const [mode, setMode] = useState(Mode.Header);
 
   return (

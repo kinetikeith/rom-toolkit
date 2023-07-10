@@ -25,7 +25,7 @@ export function Navbar<T>(props: NavbarProps<T>) {
       <Tabs
         value={props.mode}
         centered
-        onChange={(event: any, value: T) => {
+        onChange={(_event: any, value: T) => {
           props.setMode(value);
         }}
       >

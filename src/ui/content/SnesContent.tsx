@@ -17,7 +17,7 @@ const modeLabels = new Map([
   [Mode.Info, "Info"],
 ]);
 
-export default function SnesContent(props: {}) {
+export default function SnesContent() {
   const [mode, setMode] = useState(Mode.Header);
 
   return (

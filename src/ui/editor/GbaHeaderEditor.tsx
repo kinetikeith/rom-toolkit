@@ -18,7 +18,7 @@ enum Field {
   Destination,
 }
 
-export default function GbaHeaderEditor(props: {}) {
+export default function GbaHeaderEditor() {
   const context = useContext(RomContext);
   const [field, setField] = useState<Field>(Field.None);
 

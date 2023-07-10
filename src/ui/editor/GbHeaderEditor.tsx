@@ -49,18 +49,18 @@ const romCodeLabelMap = new Map<number, string>(
   [...romMap.entries()].map(([key, value]) => [
     key,
     asMemory(value.size, value.banks),
-  ])
+  ]),
 );
 
 const ramCodeLabelMap = new Map<number, string>(
   [...ramMap.entries()].map(([key, value]) => [
     key,
     asMemory(value.size, value.banks),
-  ])
+  ]),
 );
 
 const featureCodeLabelMap = new Map<number, string>(
-  [...featureMap.entries()].map(([key, value]) => [key, value.join(", ")])
+  [...featureMap.entries()].map(([key, value]) => [key, value.join(", ")]),
 );
 
 function CartridgeFeatures(props: { code: number }) {
@@ -93,7 +93,7 @@ function CartridgeFeatures(props: { code: number }) {
   );
 }
 
-export default function GbHeaderEditor(props: {}) {
+export default function GbHeaderEditor() {
   const [field, setField] = useState<Field>(Field.None);
   const context = useContext(RomContext);
 

@@ -13,14 +13,14 @@ import PatchCard from "../component/PatchCard";
 
 const patchExts = [".ips", ".ups", ".bps"];
 
-export default function PatchEditor(props: {}) {
+export default function PatchEditor() {
   const context = useContext(PatchContext);
 
   const onUploads = useCallback(
     (files: File[]) => {
       files.forEach((file) => context.add(file));
     },
-    [context]
+    [context],
   );
 
   const triggerUpload = useUploads(onUploads, patchExts);

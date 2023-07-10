@@ -39,11 +39,11 @@ const chrSizeLabelMap = new Map<number, string>(
   [...chrSizeMap.entries()].map(([key, value]) => [
     key,
     value.map((n) => asBytes(n)).join(" or "),
-  ])
+  ]),
 );
 
 const prgSizeLabelMap = new Map<number, string>(
-  [...prgSizeMap.entries()].map(([key, value]) => [key, asBytes(value)])
+  [...prgSizeMap.entries()].map(([key, value]) => [key, asBytes(value)]),
 );
 
 const mirroringLabelMap = new Map([
@@ -51,7 +51,7 @@ const mirroringLabelMap = new Map([
   [Mirroring.Vertical, "Vertical"],
 ]);
 
-export default function NesHeaderEditor(props: {}) {
+export default function NesHeaderEditor() {
   const [field, setField] = useState<Field>(Field.None);
   const context = useContext(RomContext);
   const buffer = context.buffer;

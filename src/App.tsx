@@ -58,7 +58,7 @@ const checksumThread = comlinkWrap<ChecksumInterface>(new ChecksumWorker());
 
 const emptyBuffer = Buffer.alloc(0);
 
-export default function App(props: {}) {
+export default function App() {
   const [fileData, setFileData] = useState<FileData>({
     isOpen: false,
     file: new File([], ""),

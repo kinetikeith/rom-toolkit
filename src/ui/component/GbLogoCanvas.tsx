@@ -90,7 +90,7 @@ export default function GbLogoCanvas(props: GbLogoProps) {
       onMouseMove={(event) => {
         setCursorXY(getCursorXY(event));
       }}
-      onMouseLeave={(event) => {
+      onMouseLeave={() => {
         setCursorXY([null, null]);
       }}
       onClick={(event) => {

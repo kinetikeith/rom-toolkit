@@ -17,7 +17,7 @@ const modeLabels = new Map([
   [Mode.Info, "Info"],
 ]);
 
-export default function NesContent(props: {}) {
+export default function NesContent() {
   const [mode, setMode] = useState(Mode.Header);
 
   return (

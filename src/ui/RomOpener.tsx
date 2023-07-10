@@ -13,7 +13,7 @@ import { useUpload } from "../file";
 
 const romExts = [".gb", ".gbc", ".gba", ".nes", ".sfc", ".zip"];
 
-export default function RomOpener(props: {}) {
+export default function RomOpener() {
   const context = useContext(FileContext);
   const [loading, setLoading] = useState<boolean>(false);
   const onUpload = useCallback(
@@ -23,7 +23,7 @@ export default function RomOpener(props: {}) {
         setLoading(false);
       });
     },
-    [context]
+    [context],
   );
 
   const clickFunc = useUpload(onUpload, romExts);

@@ -9,7 +9,7 @@ interface ChoiceFieldProps<T> extends FieldProps<T> {
 }
 
 export default function ChoiceField<T>(props: ChoiceFieldProps<T>) {
-  const handleChange = (event: any, newValue: T | null) => {
+  const handleChange = (_event: any, newValue: T | null) => {
     if (newValue !== null) props.onUpdate(newValue);
   };
 

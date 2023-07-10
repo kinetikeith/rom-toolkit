@@ -3,7 +3,7 @@ import { Buffer } from "buffer";
 
 import crc32 from "crc/calculators/crc32";
 import md5 from "md5";
-import jsSHA from "jssha";
+import { sha1, sha256 } from "sha.js";
 
 const checksumInterface = {
   getCrc32(buffer: Buffer) {
@@ -13,14 +13,10 @@ const checksumInterface = {
     return md5(buffer);
   },
   getSha1(buffer: Buffer) {
-    const sha1Obj = new jsSHA("SHA-1", "UINT8ARRAY");
-    sha1Obj.update(buffer);
-    return sha1Obj.getHash("HEX");
+    return new sha1().update(buffer).digest("hex");
   },
   getSha256(buffer: Buffer) {
-    const sha256Obj = new jsSHA("SHA-256", "UINT8ARRAY");
-    sha256Obj.update(buffer);
-    return sha256Obj.getHash("HEX");
+    return new sha256().update(buffer).digest("hex");
   },
 };
 

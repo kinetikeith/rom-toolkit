@@ -11,10 +11,10 @@ export default function PageFooter() {
         React
       </Link>
       <br />
-      <Typography variant="mono2">v{APP_VERSION}</Typography>
+      <Typography variant="mono2">v{import.meta.env.APP_VERSION}</Typography>
       <br />
       <GitHubIcon fontSize="inherit" />{" "}
-      <Link color="secondary" href={APP_REPO_URL}>
+      <Link color="secondary" href={import.meta.env.APP_REPO_URL}>
         GitHub
       </Link>
     </Box>

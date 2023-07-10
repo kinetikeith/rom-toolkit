@@ -14,7 +14,7 @@ const modeLabels = new Map([
   [Mode.Info, "Info"],
 ]);
 
-export default function GenericContent(props: {}) {
+export default function GenericContent() {
   const [mode, setMode] = useState(Mode.Patch);
 
   return (
