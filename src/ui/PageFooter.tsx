@@ -3,9 +3,7 @@ import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import GitHubIcon from "@mui/icons-material/GitHub";
 
-import packageInfo from "../../package.json";
-
-export default function PageFooter(props: {}) {
+export default function PageFooter() {
   return (
     <Box p={2} sx={{ textAlign: "center", pt: 3 }}>
       Designed with{" "}
@@ -13,10 +11,10 @@ export default function PageFooter(props: {}) {
         React
       </Link>
       <br />
-      <Typography variant="mono2">v{packageInfo.version}</Typography>
+      <Typography variant="mono2">v{APP_VERSION}</Typography>
       <br />
       <GitHubIcon fontSize="inherit" />{" "}
-      <Link color="secondary" href={packageInfo.repository.url}>
+      <Link color="secondary" href={APP_REPO_URL}>
         GitHub
       </Link>
     </Box>

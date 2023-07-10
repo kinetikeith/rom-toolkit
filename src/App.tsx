@@ -10,7 +10,8 @@ import { wrap as comlinkWrap } from "comlink";
 import { Rom, RomType } from "rommage";
 import { BaseRom } from "rommage/BaseRom";
 
-import { ChecksumInterface } from "./workers/checksum";
+import type { ChecksumInterface } from "./workers/checksum";
+import ChecksumWorker from "./workers/checksum?worker";
 
 import { parsePath } from "./utils";
 import {
@@ -53,9 +54,7 @@ const themeMap = new Map([
 
 const romExts = [".gb", ".gba", ".sfc", ".nes"];
 
-const checksumThread = comlinkWrap<ChecksumInterface>(
-  new Worker(new URL("./workers/checksum", import.meta.url))
-);
+const checksumThread = comlinkWrap<ChecksumInterface>(new ChecksumWorker());
 
 const emptyBuffer = Buffer.alloc(0);
 
@@ -182,7 +181,7 @@ export default function App(props: {}) {
       zip.file(fileData.zipName, romData.buffer);
       return new File(
         [await zip.generateAsync({ type: "blob" })],
-        fileData.file.name
+        fileData.file.name,
       );
     }
     return new File([romData.buffer], fileData.file.name);
@@ -237,7 +236,7 @@ export default function App(props: {}) {
       sha1: sha1,
       sha256: sha256,
     }),
-    [romData, updateRomBuffer, crc32, md5, sha1, sha256]
+    [romData, updateRomBuffer, crc32, md5, sha1, sha256],
   );
 
   const fileContextValue = useMemo(
@@ -248,7 +247,7 @@ export default function App(props: {}) {
 
       getEdited: getEditedFile,
     }),
-    [fileData, setOpenedFile, getEditedFile]
+    [fileData, setOpenedFile, getEditedFile],
   );
 
   const patchContextValue = useMemo(
@@ -257,7 +256,7 @@ export default function App(props: {}) {
       add: addPatchFile,
       remove: removePatchFile,
     }),
-    [patchFiles, addPatchFile, removePatchFile]
+    [patchFiles, addPatchFile, removePatchFile],
   );
 
   return (

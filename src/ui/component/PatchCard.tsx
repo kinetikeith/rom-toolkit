@@ -18,13 +18,14 @@ import { Buffer } from "buffer";
 import { RomContext } from "../../AppData";
 import { asBytes, asHexRaw } from "../format";
 import { PatchType } from "rommage/BasePatch";
-import {
+import type {
   PatchInterface,
   PatchInfo,
   IpsPatchInfo,
   UpsPatchInfo,
   BpsPatchInfo,
 } from "../../workers/patch";
+import PatchWorker from "../../workers/patch?worker";
 import { TextEntry, DataDivider } from "./data";
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -119,9 +120,7 @@ function BpsContent(props: { value: BpsPatchInfo }) {
   );
 }
 
-const patchThread = comlinkWrap<PatchInterface>(
-  new Worker(new URL("../../workers/patch", import.meta.url))
-);
+const patchThread = comlinkWrap<PatchInterface>(new PatchWorker());
 
 export default function PatchCard(props: {
   value: File;
