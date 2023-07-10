@@ -21,10 +21,12 @@ jobs:
       run: npm ci
     - name: Run build
       run: npm run build --if-present
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
     - name: Archive production artifact
       uses: actions/upload-pages-artifact@v1
       with:
-        path: dist
+        path: './dist'
   deploy:
     needs: build
     runs-on: ubuntu-latest
